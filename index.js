@@ -21,7 +21,7 @@ app.use(cors({
 }));
 
 app.use("/api", authApi);
-
-app.listen(3001, () => {
-    console.log("I am listening in port 3001");
+const port = process.env.PORT || 3001;
+app.listen(port, () => {
+    console.log(`I am listening in port ${port}`);
 });
