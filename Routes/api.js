@@ -12,10 +12,9 @@ router.post("/logout",AuthController.logout);
 
 // Authenticated user route
 router.get("/user",AuthMiddleware,UserController.userAuth);
-router.get("/users",UserController.getAllUsers);
 // protected Routes
 router.use(AuthMiddleware,CheckAdmin);
-// router.get("/users",UserController.getAllUsers);
+router.get("/users",UserController.getAllUsers);
 router.get("/user/:id",UserController.getSpecificUser);
 router.post("/user/add",UserController.addUser);
 router.put("/user/update/:id",UserController.updateUser);
