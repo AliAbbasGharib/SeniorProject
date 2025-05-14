@@ -34,7 +34,9 @@ exports.getSpecificUser = async (req, res) => {
 
 // Add new user
 exports.addUser = async (req, res) => {
-    const { name, email, phone_number, password, role } = req.body;
+    const { name, email, password, phone_number, date_of_birth, gender, blood_type,
+        address, last_donation_date,
+        role } = req.body;
     if (!name || !email || !password || !role) {
         return res.status(400).json({ message: 'Missing required fields' });
     }
@@ -44,7 +46,18 @@ exports.addUser = async (req, res) => {
         if (existing) return res.status(400).json({ message: 'Email already exists' });
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({ name, email, phone_number, password: hashedPassword, role });
+        const user = new User({
+            name,
+            email,
+            password: hashedPassword,
+            phone_number,
+            date_of_birth,
+            gender,
+            blood_type,
+            address,
+            last_donation_date,
+            role,
+        });
         await user.save();
 
         res.status(200).json({
@@ -59,7 +72,16 @@ exports.addUser = async (req, res) => {
 
 // Update user
 exports.updateUser = async (req, res) => {
-    const { name, email, phone_number, password, role } = req.body;
+    const { name,
+        email,
+        password: hashedPassword,
+        phone_number,
+        date_of_birth,
+        gender,
+        blood_type,
+        address,
+        last_donation_date,
+        role: role } = req.body;
 
     try {
         const user = await User.findById(req.params.id);
@@ -70,6 +92,11 @@ exports.updateUser = async (req, res) => {
         user.phone_number = phone_number;
         if (password) user.password = await bcrypt.hash(password, 10);
         user.role = role;
+        user.date_of_birth = date_of_birth;
+        user.blood_type = blood_type;
+        user.gender = gender;
+        user.address = address;
+        user.last_donation_date = last_donation_date;
 
         await user.save();
 
