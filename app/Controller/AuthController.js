@@ -11,7 +11,9 @@ const createToken = (id) => {
 // register 
 module.exports.register = async (req, res) => {
     try {
-        const { name, email, password, phone_number, role } = req.body;
+        const { name, email, password, phone_number,date_of_birth ,gender ,blood_type,
+            address, last_donation_date,          
+             role } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -25,6 +27,11 @@ module.exports.register = async (req, res) => {
             email,
             password: hashedPassword,
             phone_number,
+            date_of_birth,
+            gender,
+            blood_type,
+            address,
+            last_donation_date,
             role: role || 2001, // Default role if not provided
         });
 

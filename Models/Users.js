@@ -19,7 +19,6 @@ const userSchema =  new schema({
     },
     address: {
         type: String,
-        default: "No Address",
     },
     last_donation_date: {
         type: Date,
