@@ -72,16 +72,18 @@ exports.addUser = async (req, res) => {
 
 // Update user
 exports.updateUser = async (req, res) => {
-    const { name,
+    const {
+        name,
         email,
-        password: hashedPassword,
+        password,
         phone_number,
         date_of_birth,
         gender,
         blood_type,
         address,
         last_donation_date,
-        role: role } = req.body;
+        role
+    } = req.body;
 
     try {
         const user = await User.findById(req.params.id);
@@ -106,9 +108,11 @@ exports.updateUser = async (req, res) => {
             user
         });
     } catch (err) {
+        console.error(err); 
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 // Delete user
 exports.deleteUser = async (req, res) => {
