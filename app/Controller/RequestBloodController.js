@@ -1,41 +1,41 @@
 const RequestBlood = require('../Models/RequestBlood');
-
 exports.addRequest = async (req, res) => {
-    const {
-        user_id,
-        blood_type,
-        quantity,
-        hospital_name,
-        hospital_address,
-        contact_number,
-        urgency,
-    } = req.body;
+  const {
+    blood_type,
+    quantity,
+    hospital_name,
+    hospital_address,
+    contact_number,
+    urgency,
+  } = req.body;
 
-    if (!user_id || !blood_type || !quantity || !hospital_name || !hospital_address || !contact_number || !urgency) {
-        return res.status(400).json({ message: 'All required fields must be provided.' });
-    }
+  const user_id = req.user._id || req.userId;  // depending on your auth middleware
 
-    try {
-        const request = new RequestBlood({
-            user_id,
-            blood_type,
-            quantity,
-            hospital_name,
-            hospital_address,
-            contact_number,
-            urgency,
-            status: "pending",
-        });
+  if (!user_id || !blood_type || !quantity || !hospital_name || !hospital_address || !contact_number || !urgency) {
+    return res.status(400).json({ message: 'All required fields must be provided.' });
+  }
 
-        await request.save();
+  try {
+    const request = new RequestBlood({
+      user_id,
+      blood_type,
+      quantity,
+      hospital_name,
+      hospital_address,
+      contact_number,
+      urgency,
+      status: "pending",
+    });
 
-        res.status(200).json({
-            status: 200,
-            message: 'Request Created',
-            request,
-        });
-    } catch (err) {
-        console.error('Add request error:', err);
-        res.status(500).json({ message: 'Server error', error: err.message });
-    }
+    await request.save();
+
+    res.status(200).json({
+      status: 200,
+      message: 'Request Created',
+      request,
+    });
+  } catch (err) {
+    console.error('Add request error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
 };
