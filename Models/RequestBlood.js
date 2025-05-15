@@ -34,7 +34,7 @@ const requestBloodSchema = new schema({
     contact_number: {
         type: String,
         required: true,
-        match: [/^\d{10,15}$/, 'Please enter a valid phone number']
+        match: [/^[0-9]{8}$/, 'Please enter a valid phone number']
     },
     urgency: {
         type: String,
