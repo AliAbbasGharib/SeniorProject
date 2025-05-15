@@ -1,4 +1,4 @@
-const RequestBlood = require('../Models/RequestBlood');
+const RequestBlood = require('../../Models/RequestBlood');
 exports.addRequest = async (req, res) => {
   const {
     blood_type,
