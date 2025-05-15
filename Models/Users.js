@@ -1,21 +1,31 @@
 const mongoose = require("mongoose");
 const schema = mongoose.Schema
 
-const userSchema =  new schema({
+const userSchema = new schema({
     name: String,
-    email: String,
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        match: [/^\S+@\S+\.\S+$/, 'Invalid email address'],
+    },
     password: String,
-    phone_number: String,
+    phone_number: {
+        type: String,
+        match: [/^\d{10,15}$/, 'Please enter a valid phone number'],
+    },
     date_of_birth: {
         type: Date,
     },
     gender: {
         type: String,
-        enum: ["Male","Female"],
+        required: true,
+        enum: ["Male", "Female"],
     },
     blood_type: {
         type: String,
-        enum: ["A+","A-","B+","B-","AB+","AB-","O+","O-"],
+        required: true,
+        enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
     },
     address: {
         type: String,
@@ -31,7 +41,7 @@ const userSchema =  new schema({
         type: Date,
         default: Date.now,
     },
-    
+
 });
 
 const Users = mongoose.model("User", userSchema);
