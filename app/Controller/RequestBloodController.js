@@ -1,3 +1,5 @@
+const RequestBlood = require('../Models/RequestBlood');
+
 exports.addRequest = async (req, res) => {
     const {
         user_id,
