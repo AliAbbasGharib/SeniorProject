@@ -68,6 +68,7 @@ exports.addRequest = async (req, res) => {
     quantity,
     donation_point,
     contact_number,
+    request_date,
     description,
     trasportation,
     urgency,
