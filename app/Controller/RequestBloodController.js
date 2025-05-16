@@ -1,28 +1,34 @@
 const RequestBlood = require('../../Models/RequestBlood');
 exports.addRequest = async (req, res) => {
   const {
+    patient_name,
     blood_type,
     quantity,
-    hospital_name,
-    hospital_address,
+    donation_point,
     contact_number,
+    description,
+    trasportation,
     urgency,
   } = req.body;
 
   const user_id = req.user._id || req.userId;  // depending on your auth middleware
 
-  if (!user_id || !blood_type || !quantity || !hospital_name || !hospital_address || !contact_number || !urgency) {
+  if (!user_id || !blood_type || !quantity || !donation_point|| !contact_number || !urgency) {
     return res.status(400).json({ message: 'All required fields must be provided.' });
   }
 
   try {
     const request = new RequestBlood({
       user_id,
+      patient_name,
       blood_type,
       quantity,
-      hospital_name,
+      donation_point,
       hospital_address,
       contact_number,
+      description,
+      trasportation,
+      request_date,
       urgency,
       status: "pending",
     });

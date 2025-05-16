@@ -7,7 +7,9 @@ const requestBloodSchema = new schema({
         ref: 'User',
         required: true
     },
-
+    patient_name: {
+        type: String,
+    },
     request_date: {
         type: Date,
         default: Date.now
@@ -20,14 +22,10 @@ const requestBloodSchema = new schema({
     quantity: {
         type: Number,
         min: [1, 'Quantity must be at least 1 unit'],
-        max: [10, 'Quantity cannot exceed 10 units'],
+        max: [8, 'Quantity cannot exceed 8 units'],
         required: [true, 'Quantity is required'],
     },
-    hospital_name: {
-        type: String,
-        required: true
-    },
-    hospital_address: {
+    donation_point: {
         type: String,
         required: true
     },
@@ -35,6 +33,14 @@ const requestBloodSchema = new schema({
         type: String,
         required: true,
         match: [/^[0-9]{8}$/, 'Please enter a valid phone number']
+    },
+    description: {
+        type: String,
+    },
+    transportation: {
+        type: String,
+        enum: ["provided", "not provided"],
+        required: true
     },
     urgency: {
         type: String,
