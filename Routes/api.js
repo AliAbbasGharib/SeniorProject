@@ -14,16 +14,13 @@ router.post("/logout", AuthController.logout);
 // Authenticated user route
 router.get("/user", AuthMiddleware, UserController.userAuth);
 // protected Routes
-router.use(AuthMiddleware, CheckAdmin);
 // Admin-protected Routes
-router.get("/users", UserController.getAllUsers);
-router.get("/user/:id", UserController.getSpecificUser);
-router.get("/user/limit/:number", UserController.getLimitedUsers);
-router.post("/user/add", UserController.addUser);
-router.put("/user/update/:id", UserController.updateUser);
-router.delete("/user/:id", UserController.deleteUser);
-
-
+router.get("/users", AuthMiddleware, CheckAdmin, UserController.getAllUsers);
+router.get("/user/:id", AuthMiddleware, CheckAdmin, UserController.getSpecificUser);
+router.get("/user/limit/:number", AuthMiddleware, CheckAdmin, UserController.getLimitedUsers);
+router.post("/user/add", AuthMiddleware, CheckAdmin, UserController.addUser);
+router.put("/user/update/:id", AuthMiddleware, CheckAdmin, UserController.updateUser);
+router.delete("/user/:id", AuthMiddleware, CheckAdmin, UserController.deleteUser);
 
 // User-protected Routes
 router.get("/request", RequestBloodController.getAllRequests);
