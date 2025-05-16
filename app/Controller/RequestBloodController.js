@@ -70,7 +70,7 @@ exports.addRequest = async (req, res) => {
     contact_number,
     request_date,
     description,
-    trasportation,
+    transportation,
     urgency,
   } = req.body;
 
@@ -89,7 +89,7 @@ exports.addRequest = async (req, res) => {
       donation_point,
       contact_number,
       description,
-      trasportation,
+      transportation,
       request_date,
       urgency,
       status: "pending",
