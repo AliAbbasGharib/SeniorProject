@@ -16,6 +16,29 @@ exports.userAuth = async (req, res) => {
     res.status(200).json(req.user); // req.user is set in auth middleware
 };
 
+exports.getLimitedUsers = async (req, res) => {
+  try {
+    const limit = parseInt(req.params.number);
+    if (isNaN(limit) || limit <= 0) {
+      return res.status(400).json({ message: 'Invalid limit number' });
+    }
+
+    const requests = await RequestBlood.find().limit(limit);
+    if (!requests || requests.length === 0) {
+      return res.status(404).json({ message: 'No User found' });
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: `Returning ${requests.length} request(s)`,
+      requests,
+    });
+  } catch (err) {
+    console.error('Get limited users error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
 // Get specific user
 exports.getSpecificUser = async (req, res) => {
     try {

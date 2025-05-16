@@ -18,6 +18,7 @@ router.use(AuthMiddleware, CheckAdmin);
 // Admin-protected Routes
 router.get("/users", UserController.getAllUsers);
 router.get("/user/:id", UserController.getSpecificUser);
+router.get("/user/limit/:number", UserController.getLimitedUsers);
 router.post("/user/add", UserController.addUser);
 router.put("/user/update/:id", UserController.updateUser);
 router.delete("/user/:id", UserController.deleteUser);
@@ -25,6 +26,11 @@ router.delete("/user/:id", UserController.deleteUser);
 
 
 // User-protected Routes
-router.post("/request/add",AuthMiddleware, RequestBloodController.addRequest);
+router.get("/request", RequestBloodController.getAllRequests);
+router.get("/request/:id", RequestBloodController.getSpecificRequest);
+router.get("/request/limit/:number", RequestBloodController.getLimitedRequests);
+router.post("/request/add", AuthMiddleware, RequestBloodController.addRequest);
+router.put("/request/update/:id", AuthMiddleware, RequestBloodController.updateRequest);
+router.delete("/request/:id", AuthMiddleware, RequestBloodController.deleteRequest);
 
 module.exports = router;
