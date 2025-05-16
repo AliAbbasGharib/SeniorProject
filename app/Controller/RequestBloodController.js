@@ -155,7 +155,7 @@ exports.updateRequest = async (req, res) => {
   }
 };
 
-exports.deleteUser = async (req, res) => {
+exports.deleteRequest = async (req, res) => {
     try {
         const user = await RequestBlood.findByIdAndDelete(req.params.id);
         if (!user) return res.status(404).json({ message: 'Request not found' });
