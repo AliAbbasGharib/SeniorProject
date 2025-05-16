@@ -118,7 +118,7 @@ exports.updateRequest = async (req, res) => {
     donation_point,
     contact_number,
     description,
-    trasportation,
+    transportation,  // fix typo here
     request_date,
     urgency,
     status,
@@ -137,11 +137,10 @@ exports.updateRequest = async (req, res) => {
     request.donation_point = donation_point || request.donation_point;
     request.contact_number = contact_number || request.contact_number;
     request.description = description || request.description;
-    request.trasportation = trasportation || request.trasportation;
+    request.transportation = transportation || request.transportation;  // fixed here
     request.request_date = request_date || request.request_date;
     request.urgency = urgency || request.urgency;
     request.status = status || request.status;
-
 
     await request.save();
 
@@ -155,7 +154,6 @@ exports.updateRequest = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-
 exports.deleteRequest = async (req, res) => {
   try {
     const request = await RequestBlood.findById(req.params.id);
