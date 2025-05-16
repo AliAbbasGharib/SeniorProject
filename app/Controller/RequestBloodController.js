@@ -118,7 +118,7 @@ exports.updateRequest = async (req, res) => {
     donation_point,
     contact_number,
     description,
-    transportation,  // fix typo here
+    transportation, 
     request_date,
     urgency,
     status,
@@ -154,21 +154,14 @@ exports.updateRequest = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-exports.deleteRequest = async (req, res) => {
-  try {
-    const request = await RequestBlood.findById(req.params.id);
-    if (!request) {
-      return res.status(404).json({ message: 'Request not found' });
+
+exports.deleteUser = async (req, res) => {
+    try {
+        const user = await RequestBlood.findByIdAndDelete(req.params.id);
+        if (!user) return res.status(404).json({ message: 'Request not found' });
+
+        res.status(200).json({ status: 200, message: 'Request Deleted' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
-
-    await request.remove();
-
-    res.status(200).json({
-      status: 200,
-      message: 'Request deleted',
-    });
-  } catch (err) {
-    console.error('Delete request error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
 };
