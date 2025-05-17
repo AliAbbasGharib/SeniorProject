@@ -23,7 +23,7 @@ exports.getLimitedUsers = async (req, res) => {
       return res.status(400).json({ message: 'Invalid limit number' });
     }
 
-    const requests = await RequestBlood.find().limit(limit);
+    const requests = await User.find().limit(limit);
     if (!requests || requests.length === 0) {
       return res.status(404).json({ message: 'No User found' });
     }
