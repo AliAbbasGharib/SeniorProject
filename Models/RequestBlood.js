@@ -44,8 +44,9 @@ const requestBloodSchema = new schema({
     },
     urgency: {
         type: String,
-        enum: ["low", "medium", "high"],
-        required: true
+        enum: ["Regular", "Urgent"],
+        default: "Regular",
+        required: true,
     },
     status: {
         type: String,
