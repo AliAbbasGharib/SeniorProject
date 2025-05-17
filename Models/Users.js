@@ -12,7 +12,7 @@ const userSchema = new schema({
     password: String,
     phone_number: {
         type: String,
-        match: [/^\d{10,15}$/, 'Please enter a valid phone number'],
+        match: [/^[0-9]{8}$/, 'Please enter a valid phone number'],
     },
     date_of_birth: {
         type: Date,
