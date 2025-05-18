@@ -41,7 +41,7 @@ const userSchema = new schema({
     status: {
         type: String,
         enum: ["active", "inactive", "pending", "banned"],
-        default: "pending",
+        default: "active",
     },
 
     created_at: {
