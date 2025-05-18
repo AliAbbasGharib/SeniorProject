@@ -21,7 +21,7 @@ router.get("/user/limit/:number", AuthMiddleware, CheckAdmin, UserController.get
 router.post("/user/add", AuthMiddleware, CheckAdmin, UserController.addUser);
 router.put("/user/update/:id", AuthMiddleware, CheckAdmin, UserController.updateUser);
 router.delete("/user/:id", AuthMiddleware, CheckAdmin, UserController.deleteUser);
-router.put("/user/update-status/:id", AuthMiddleware, CheckAdmin, UserController.statusUser);
+router.put("/user/status/:id", AuthMiddleware, CheckAdmin, UserController.statusUser);
 
 // User-protected Routes
 router.get("/request", RequestBloodController.getAllRequests);
