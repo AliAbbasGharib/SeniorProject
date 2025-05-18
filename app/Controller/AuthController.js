@@ -11,9 +11,9 @@ const createToken = (id) => {
 // register 
 module.exports.register = async (req, res) => {
     try {
-        const { name, email, password, phone_number,date_of_birth ,gender ,blood_type,
-            address, last_donation_date,          
-             role } = req.body;
+        const { name, email, password, phone_number, date_of_birth, gender, blood_type,
+            address, last_donation_date,
+            role } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -60,6 +60,10 @@ module.exports.login = async (req, res) => {
             return res.status(400).json({ message: "Invalid email or password" });
         }
 
+        if (user.status !== 'active') {
+            return res.status(403).json({ message: 'Your account is not active' });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid email or password" });
@@ -71,10 +75,12 @@ module.exports.login = async (req, res) => {
             token,
             message: "Login successful"
         });
+
     } catch (err) {
         return res.status(500).json({ message: "Server error", error: err.message });
     }
 };
+
 
 // logout
 module.exports.logout = (req, res) => {

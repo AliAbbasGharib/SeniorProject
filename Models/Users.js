@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const schema = mongoose.Schema
+const schema = mongoose.Schema;
 
 const userSchema = new schema({
     name: String,
@@ -37,11 +37,17 @@ const userSchema = new schema({
         type: String,
         default: "2001",
     },
+
+    status: {
+        type: String,
+        enum: ["active", "inactive", "pending", "banned"],
+        default: "pending",
+    },
+
     created_at: {
         type: Date,
         default: Date.now,
     },
-
 });
 
 const Users = mongoose.model("User", userSchema);
