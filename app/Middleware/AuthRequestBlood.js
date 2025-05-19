@@ -1,6 +1,6 @@
 // Example middleware for authorization
 // filepath: c:\Users\USER\Desktop\SeniorProject\back-end\middleware\authRequestBlood.js
-const RequestBlood = require('../Models/RequestBlood');
+const RequestBlood = require('../../Models/RequestBlood'); // Adjust the path as necessary
 
 async function canEditOrDeleteRequest(req, res, next) {
     const requestId = req.params.id;
