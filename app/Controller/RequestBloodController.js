@@ -118,7 +118,7 @@ exports.updateRequest = async (req, res) => {
     donation_point,
     contact_number,
     description,
-    transportation, 
+    transportation,
     request_date,
     urgency,
     status,
@@ -156,12 +156,33 @@ exports.updateRequest = async (req, res) => {
 };
 
 exports.deleteRequest = async (req, res) => {
-    try {
-        const user = await RequestBlood.findByIdAndDelete(req.params.id);
-        if (!user) return res.status(404).json({ message: 'Request not found' });
+  try {
+    const user = await RequestBlood.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: 'Request not found' });
 
-        res.status(200).json({ status: 200, message: 'Request Deleted' });
-    } catch (err) {
-        res.status(500).json({ message: 'Server error' });
-    }
+    res.status(200).json({ status: 200, message: 'Request Deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
 };
+
+exports.updateDoneStatus = async (req, res) => {
+  const requestId = req.params.id;
+  const { done_status } = req.body;
+
+  if (!["done", "non"].includes(done_status)) {
+    return res.status(400).json({ message: 'Invalid done_status value' });
+  }
+
+  const request = await RequestBlood.findByIdAndUpdate(
+    requestId,
+    { done_status },
+    { new: true }
+  );
+
+  if (!request) {
+    return res.status(404).json({ message: 'Request not found' });
+  }
+
+  res.json(request);
+}

@@ -4,6 +4,7 @@ const AuthController = require('../app/Controller/AuthController');
 const UserController = require("../app/Controller/UserController");
 const AuthMiddleware = require('../app/Middleware/Authenticate');
 const CheckAdmin = require('../app/Middleware/CheckAdmin');
+const AuthRequestBlood = require('../app/Middleware/AuthRequestBlood');
 const RequestBloodController = require('../app/Controller/RequestBloodController');
 // public Route
 // Auth routes
@@ -28,7 +29,8 @@ router.get("/request", RequestBloodController.getAllRequests);
 router.get("/request/:id", RequestBloodController.getSpecificRequest);
 router.get("/request/limit/:number", RequestBloodController.getLimitedRequests);
 router.post("/request/add", AuthMiddleware, RequestBloodController.addRequest);
-router.put("/request/update/:id", AuthMiddleware, RequestBloodController.updateRequest);
-router.delete("/request/:id", AuthMiddleware, RequestBloodController.deleteRequest);
+router.put("/request/update/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.updateRequest);
+router.delete("/request/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.deleteRequest);
+router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.updateDoneStatus);
 
 module.exports = router;

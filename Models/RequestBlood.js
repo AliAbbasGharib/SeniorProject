@@ -48,10 +48,11 @@ const requestBloodSchema = new schema({
         default: "Regular",
         required: true,
     },
-    status: {
+    done_status: {
         type: String,
-        enum: ["pending", "approved", "rejected"],
-        default: "pending"
+        enum: ["done", "non"],
+        default: "non",
+        required: true
     },
     created_at: {
         type: Date,
