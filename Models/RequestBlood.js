@@ -50,7 +50,7 @@ const requestBloodSchema = new schema({
     },
     done_status: {
         type: String,
-        enum: ["done", "non"],
+        enum: ["complete", "non complete"],
         default: "non",
         required: true
     },

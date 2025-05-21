@@ -170,7 +170,7 @@ exports.updateDoneStatus = async (req, res) => {
   const requestId = req.params.id;
   const { done_status } = req.body;
 
-  if (!["done", "non"].includes(done_status)) {
+  if (!["complete", "non complete"].includes(done_status)) {
     return res.status(400).json({ message: 'Invalid done_status value' });
   }
 
