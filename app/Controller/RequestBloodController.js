@@ -22,7 +22,7 @@ exports.getSpecificRequest = async (req, res) => {
 //get all requests
 exports.getAllRequests = async (req, res) => {
   try {
-    const requests = await RequestBlood.find();
+    const requests = await RequestBlood.find().populate('user_id', '_id role name');
     if (!requests || requests.length === 0) {
       return res.status(404).json({ message: 'No requests found' });
     }
@@ -35,7 +35,7 @@ exports.getAllRequests = async (req, res) => {
     console.error('Get all requests error:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
-}
+};
 
 // get limited number of requests
 exports.getLimitedRequests = async (req, res) => {
@@ -111,7 +111,6 @@ exports.addRequest = async (req, res) => {
 // uodate request
 exports.updateRequest = async (req, res) => {
   const {
-    user_id,
     patient_name,
     blood_type,
     quantity,
@@ -130,17 +129,21 @@ exports.updateRequest = async (req, res) => {
       return res.status(404).json({ message: 'Request not found' });
     }
 
-    request.user_id = user_id || request.user_id;
+    // Optional security check
+    if (String(request.user_id) !== String(req.user._id) && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Unauthorized to update this request' });
+    }
+
     request.patient_name = patient_name || request.patient_name;
     request.blood_type = blood_type || request.blood_type;
     request.quantity = quantity || request.quantity;
     request.donation_point = donation_point || request.donation_point;
     request.contact_number = contact_number || request.contact_number;
     request.description = description || request.description;
-    request.transportation = transportation || request.transportation;  // fixed here
+    request.transportation = transportation || request.transportation;
     request.request_date = request_date || request.request_date;
     request.urgency = urgency || request.urgency;
-    request.status = done_status || request.done_status;
+    request.done_status = done_status || request.done_status;
 
     await request.save();
 
@@ -154,6 +157,7 @@ exports.updateRequest = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 exports.deleteRequest = async (req, res) => {
   try {

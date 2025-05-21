@@ -51,7 +51,7 @@ const requestBloodSchema = new schema({
     done_status: {
         type: String,
         enum: ["complete", "non complete"],
-        default: "non",
+        default: "non complete",
         required: true
     },
     created_at: {
