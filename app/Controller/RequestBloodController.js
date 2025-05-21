@@ -92,7 +92,7 @@ exports.addRequest = async (req, res) => {
       transportation,
       request_date,
       urgency,
-      status: "pending",
+      done_status: "non complete",
     });
 
     await request.save();
@@ -121,7 +121,7 @@ exports.updateRequest = async (req, res) => {
     transportation,
     request_date,
     urgency,
-    status,
+    done_status,
   } = req.body;
 
   try {
@@ -140,7 +140,7 @@ exports.updateRequest = async (req, res) => {
     request.transportation = transportation || request.transportation;  // fixed here
     request.request_date = request_date || request.request_date;
     request.urgency = urgency || request.urgency;
-    request.status = status || request.status;
+    request.status = done_status || request.done_status;
 
     await request.save();
 
