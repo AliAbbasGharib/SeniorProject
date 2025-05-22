@@ -229,7 +229,7 @@ exports.statusUser = async (req, res) => {
 
 exports.ChangePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
-    const userId = req.user._id; // Assuming you have the user ID from the token
+    const userId = req.user._id; 
 
     try {
         const user = await User.findById(userId);
