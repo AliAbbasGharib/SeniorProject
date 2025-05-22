@@ -153,7 +153,6 @@ exports.updateOwnProfile = async (req, res) => {
     const {
         name,
         email,
-        password,
         phone_number,
         date_of_birth,
         gender,
