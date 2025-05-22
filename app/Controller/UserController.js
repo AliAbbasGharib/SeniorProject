@@ -254,7 +254,7 @@ exports.getAvailableDonors = async (req, res) => {
         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
         const users = await User.find({
-            role: '2001',
+            // role: '2001',
             last_donation_date: { $lte: threeMonthsAgo }
         });
 
