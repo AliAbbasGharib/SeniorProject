@@ -54,11 +54,7 @@ const requestBloodSchema = new schema({
         default: "non complete",
         required: true
     },
-    created_at: {
-        type: Date,
-        default: Date.now
-    }
-});
+},{timestamps: true});
 
 const RequestBlood = moongoose.model('RequestBlood', requestBloodSchema);
 module.exports = RequestBlood;

@@ -48,6 +48,11 @@ const userSchema = new schema({
         type: Date,
         default: Date.now,
     },
+    donation_availability: {
+        type: Boolean,
+        default: false,
+    },
+    
 });
 
 const Users = mongoose.model("User", userSchema);

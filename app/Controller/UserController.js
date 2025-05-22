@@ -179,3 +179,72 @@ exports.statusUser = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
+
+exports.ChangePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user._id; // Assuming you have the user ID from the token
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect' });
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        res.status(200).json({ message: 'Password changed successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+// Get donors available to donate (last donation > 3 months ago)
+exports.getAvailableDonors = async (req, res) => {
+    try {
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+        const users = await User.find({
+            role: '2001',
+            last_donation_date: { $lte: threeMonthsAgo }
+        });
+
+        res.status(200).json({
+            status: 200,
+            message: `Found ${users.length} available donor(s)`,
+            users
+        });
+    } catch (err) {
+        console.error('Error fetching available donors:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+exports.countDonorsByBloodType = async (req, res) => {
+    try {
+        const counts = await User.aggregate([
+            {
+                $group: {
+                    _id: "$blood_type",
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { count: -1 } 
+            }
+        ]);
+
+        res.status(200).json({
+            status: 200,
+            message: "Donor count by blood type",
+            data: counts
+        });
+    } catch (err) {
+        console.error("Error counting donors by blood type:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
