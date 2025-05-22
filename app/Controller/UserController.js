@@ -148,6 +148,53 @@ exports.deleteUser = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+// UserController.js
+exports.updateOwnProfile = async (req, res) => {
+    const {
+        name,
+        email,
+        password,
+        phone_number,
+        date_of_birth,
+        gender,
+        blood_type,
+        address,
+        last_donation_date
+    } = req.body;
+
+    const userId = req.user._id;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.phone_number = phone_number || user.phone_number;
+        user.date_of_birth = date_of_birth || user.date_of_birth;
+        user.gender = gender || user.gender;
+        user.blood_type = blood_type || user.blood_type;
+        user.address = address || user.address;
+        user.last_donation_date = last_donation_date || user.last_donation_date;
+
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            status: 200,
+            message: 'Your profile has been updated',
+            user
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
 
 // status user
 exports.statusUser = async (req, res) => {
@@ -233,7 +280,7 @@ exports.countDonorsByBloodType = async (req, res) => {
                 }
             },
             {
-                $sort: { count: -1 } 
+                $sort: { count: -1 }
             }
         ]);
 
