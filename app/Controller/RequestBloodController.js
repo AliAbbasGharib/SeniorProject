@@ -22,8 +22,7 @@ exports.getSpecificRequest = async (req, res) => {
 //get all requests
 exports.getAllRequests = async (req, res) => {
   try {
-    const requests = await RequestBlood.find()
-      .sort({ createdAt: -1 });
+    const requests = await RequestBlood.find().sort({ createdAt: -1 });
     if (!requests || requests.length === 0) {
       return res.status(404).json({ message: 'No requests found' });
     }
