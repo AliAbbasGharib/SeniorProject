@@ -46,7 +46,7 @@ exports.getLimitedRequests = async (req, res) => {
       return res.status(400).json({ message: 'Invalid limit number' });
     }
 
-    const requests = await RequestBlood.find().limit(limit);
+    const requests = await RequestBlood.find().limit(limit).sort({ createdAt: -1 });
     if (!requests || requests.length === 0) {
       return res.status(404).json({ message: 'No requests found' });
     }
