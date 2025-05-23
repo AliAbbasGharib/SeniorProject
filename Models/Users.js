@@ -49,8 +49,8 @@ const userSchema = new schema({
         default: Date.now,
     },
     donation_availability: {
-        type: Boolean,
-        default: false,
+        type: String,
+        enum: ["available","non-available"],
     },
     
 });

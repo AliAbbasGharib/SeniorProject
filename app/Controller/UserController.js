@@ -251,13 +251,14 @@ exports.getAvailableDonors = async (req, res) => {
 
         const users = await User.find({
             role: '2001',  // make sure this matches your user roles
+            donation_availability: "available",
             $or: [
                 { last_donation_date: { $lte: threeMonthsAgo } },
                 { last_donation_date: { $exists: false } },
                 { last_donation_date: null }
             ]
         });
-
+        status: 'active'
         res.status(200).json({
             status: 200,
             message: `Found ${users.length} available donor(s)`,
