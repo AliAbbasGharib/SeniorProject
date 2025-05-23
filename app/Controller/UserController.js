@@ -176,10 +176,6 @@ exports.updateOwnProfile = async (req, res) => {
         user.address = address || user.address;
         user.last_donation_date = last_donation_date || user.last_donation_date;
 
-        if (password) {
-            user.password = await bcrypt.hash(password, 10);
-        }
-
         await user.save();
 
         res.status(200).json({
@@ -228,7 +224,7 @@ exports.statusUser = async (req, res) => {
 
 exports.ChangePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
-    const userId = req.user._id; 
+    const userId = req.user._id;
 
     try {
         const user = await User.findById(userId);
@@ -273,6 +269,8 @@ exports.getAvailableDonors = async (req, res) => {
     }
 };
 
+const User = require('../models/User'); // Adjust path as needed
+
 exports.countDonorsByBloodType = async (req, res) => {
     try {
         const counts = await User.aggregate([
@@ -281,20 +279,24 @@ exports.countDonorsByBloodType = async (req, res) => {
                     _id: "$blood_type",
                     count: { $sum: 1 }
                 }
-            },
-            {
-                $sort: { count: -1 }
             }
         ]);
+
+        // Format output: rename _id to blood_type
+        const result = counts.map(({ _id, count }) => ({
+            blood_type: _id,
+            count
+        }));
 
         res.status(200).json({
             status: 200,
             message: "Donor count by blood type",
-            data: counts
+            data: result
         });
     } catch (err) {
         console.error("Error counting donors by blood type:", err);
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
+
 
