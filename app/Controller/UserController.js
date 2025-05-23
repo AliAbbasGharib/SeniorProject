@@ -269,8 +269,6 @@ exports.getAvailableDonors = async (req, res) => {
     }
 };
 
-const User = require('../models/User'); // Adjust path as needed
-
 exports.countDonorsByBloodType = async (req, res) => {
     try {
         const counts = await User.aggregate([
