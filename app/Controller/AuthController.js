@@ -12,7 +12,7 @@ const createToken = (id) => {
 module.exports.register = async (req, res) => {
     try {
         const { name, email, password, phone_number, date_of_birth, gender, blood_type,
-            address, last_donation_date,
+            address, last_donation_date,location,
             role } = req.body;
 
         const existingUser = await User.findOne({ email });
@@ -32,6 +32,7 @@ module.exports.register = async (req, res) => {
             blood_type,
             address,
             last_donation_date,
+            location,
             role: role || 2001, // Default role if not provided
         });
 
