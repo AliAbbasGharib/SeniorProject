@@ -1,3 +1,4 @@
+const Users = require('../../Models/Users');
 const User = require('../../Models/Users');
 const bcrypt = require('bcryptjs');
 
@@ -274,18 +275,9 @@ exports.getAvailableDonors = async (req, res) => {
 };
 
 exports.countDonorsByBloodType = async (req, res) => {
+    console.log("🔧 countDonorsByBloodType controller hit");
     try {
-        console.log("📌 Reached controller");
-
-        // Check if User model is valid
-        console.log("Model aggregate type:", typeof User.aggregate); // should be "function"
-
-        // Check if any user exists
-        const testUser = await User.findOne();
-        console.log("🔍 Sample User:", testUser);
-
-        // Run aggregation
-        const counts = await User.aggregate([
+        const counts = await Users.aggregate([
             {
                 $group: {
                     _id: "$blood_type",
@@ -293,25 +285,23 @@ exports.countDonorsByBloodType = async (req, res) => {
                 }
             }
         ]);
+
         console.log("✅ Aggregation result:", counts);
 
-        // Format result
         const result = {};
         counts.forEach(item => {
             result[item._id] = item.count;
         });
 
-        // Send response
         res.status(200).json({
             status: 200,
             message: "Donor count by blood type",
             data: result
         });
     } catch (err) {
-        console.error("❌ Error during aggregation:", err.message);
-        console.error(err.stack);
+        console.error("❌ Aggregation failed!");
+        console.error("Message:", err.message);
+        console.error("Stack:", err.stack);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
-
-
