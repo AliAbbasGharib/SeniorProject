@@ -58,12 +58,10 @@ const userSchema = new schema({
         type: {
             type: String,
             enum: ['Point'],
-            required: true,
             default: 'Point',
         },
         coordinates: {
             type: [Number], // [longitude, latitude]
-            required: true,
         }
     },
 });

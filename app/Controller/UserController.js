@@ -240,7 +240,7 @@ exports.ChangePassword = async (req, res) => {
         res.status(200).json({ message: 'Password changed successfully' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 }
 
@@ -266,7 +266,7 @@ exports.getAvailableDonors = async (req, res) => {
         });
     } catch (err) {
         console.error('Error fetching available donors:', err.stack || err);
-        res.status(500).json({ message: 'Server error',  err });
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
@@ -295,7 +295,7 @@ exports.countDonorsByBloodType = async (req, res) => {
         });
     } catch (err) {
         console.error("Error counting donors by blood type:", err.stack || err);
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
