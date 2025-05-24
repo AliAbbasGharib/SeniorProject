@@ -273,7 +273,7 @@ exports.getAvailableDonors = async (req, res) => {
     }
 };
 
-const Users = require('../Model/User');
+
 
 exports.countAllBloodTypes = async (req, res) => {
     try {
