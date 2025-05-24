@@ -26,8 +26,8 @@ router.put("/user/update/:id", AuthMiddleware, UserController.updateUser);
 router.delete("/user/:id", AuthMiddleware, CheckAdmin, UserController.deleteUser);
 router.put("/user/status/:id", AuthMiddleware, CheckAdmin, UserController.statusUser);
 router.put("/user/change-password/:id", AuthMiddleware, UserController.ChangePassword);
-router.get("/user/available-donor", UserController.getAvailableDonors);
-router.get('/count-by-blood-type', UserController.countAllBloodTypes);
+router.get("/available-donor", UserController.getAvailableDonors);
+router.get('/count-by-blood-type', AuthMiddleware, UserController.countAllBloodTypes);
 router.put("/user/update-profile", AuthMiddleware, UserController.updateOwnProfile);
 // User-protected Routes
 router.get("/request", RequestBloodController.getAllRequests);
@@ -39,5 +39,5 @@ router.delete("/request/:id", AuthMiddleware, AuthRequestBlood, RequestBloodCont
 router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.updateDoneStatus);
 
 
-router.post("/notifications/send-to-all",AuthMiddleware,CheckAdmin,NotificationController.sendNotificationToAllUsers);
+router.post("/notifications/send-to-all", AuthMiddleware, CheckAdmin, NotificationController.sendNotificationToAllUsers);
 module.exports = router;
