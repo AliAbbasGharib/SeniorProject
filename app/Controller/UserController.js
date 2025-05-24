@@ -258,7 +258,6 @@ exports.getAvailableDonors = async (req, res) => {
                 { last_donation_date: null }
             ]
         });
-        status: 'active'
         res.status(200).json({
             status: 200,
             message: `Found ${users.length} available donor(s)`,
@@ -272,7 +271,7 @@ exports.getAvailableDonors = async (req, res) => {
 
 exports.countDonorsByBloodType = async (req, res) => {
     try {
-        const counts = await User.aggregate([
+        const counts = await Users.aggregate([
             {
                 $group: {
                     _id: "$blood_type",
@@ -281,11 +280,11 @@ exports.countDonorsByBloodType = async (req, res) => {
             }
         ]);
 
-        // Format output: rename _id to blood_type
-        const result = counts.map(({ _id, count }) => ({
-            blood_type: _id,
-            count
-        }));
+        // Convert array to object: { A+: 10, B-: 5, ... }
+        const result = {};
+        counts.forEach(item => {
+            result[item._id] = item.count;
+        });
 
         res.status(200).json({
             status: 200,
