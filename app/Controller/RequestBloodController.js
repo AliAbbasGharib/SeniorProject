@@ -136,7 +136,7 @@ exports.addRequest = async (req, res) => {
     const notifications = nearbyUsers.map(user => ({
       userId: user._id,
       title: "Urgent Blood Request Nearby",
-      message: `Urgent blood request near you for blood type ${blood_type}. Please help!`,
+      message: `Urgent blood request near you for blood type ${user.blood_type}. Please help!`,
     }));
 
     await Notification.insertMany(notifications);
