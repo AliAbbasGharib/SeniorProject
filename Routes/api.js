@@ -6,6 +6,8 @@ const AuthMiddleware = require('../app/Middleware/Authenticate');
 const CheckAdmin = require('../app/Middleware/CheckAdmin');
 const AuthRequestBlood = require('../app/Middleware/AuthRequestBlood');
 const RequestBloodController = require('../app/Controller/RequestBloodController');
+const NotificationController = require('../app/Controller/NotificationController');
+
 // public Route
 // Auth routes
 router.post("/register", AuthController.register);
@@ -36,4 +38,8 @@ router.put("/request/update/:id", AuthMiddleware, AuthRequestBlood, RequestBlood
 router.delete("/request/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.deleteRequest);
 router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.updateDoneStatus);
 
+
+router.get("/notifications", AuthMiddleware, NotificationController.getUserNotifications);
+router.patch("/notifications/:id/read", AuthMiddleware, NotificationController.markAsRead);
+router.delete("/notifications/:id", AuthMiddleware, NotificationController.deleteNotification);
 module.exports = router;

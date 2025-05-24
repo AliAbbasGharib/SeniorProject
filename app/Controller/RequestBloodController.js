@@ -1,6 +1,6 @@
 const RequestBlood = require('../../Models/RequestBlood');
-
-
+const User = require("../../Models/Users");
+const admin = require("firebase-admin");
 //get specific request
 exports.getSpecificRequest = async (req, res) => {
   try {
@@ -61,6 +61,36 @@ exports.getLimitedRequests = async (req, res) => {
   }
 };
 
+
+async function sendNotificationToUsers(users, message) {
+  for (const user of users) {
+    const usersInArea = await User.find({
+      location: {
+        $nearSphere: {
+          $geometry: {
+            type: "Point",
+            coordinates: [donation_point_lng, donation_point_lat],
+          },
+          $maxDistance: 15000,
+        },
+      },
+      blood_type,
+    });
+
+    const tokens = usersInArea.flatMap(user => user.fcmTokens || []);
+
+    if (tokens.length > 0) {
+      await admin.messaging().sendMulticast({
+        tokens,
+        notification: {
+          title: "Urgent Blood Request",
+          body: `Someone nearby needs ${blood_type} blood.`,
+        },
+      });
+    }
+  }
+}
+
 exports.addRequest = async (req, res) => {
   const {
     patient_name,
@@ -69,7 +99,7 @@ exports.addRequest = async (req, res) => {
     donation_point,
     donation_point_lat,
     donation_point_lng,
-    location,
+    location, // expected GeoJSON: { type: "Point", coordinates: [lng, lat] }
     contact_number,
     request_date,
     description,
@@ -79,7 +109,7 @@ exports.addRequest = async (req, res) => {
 
   const user_id = req.user?._id || req.userId;
 
-  // Basic required fields validation
+  // Validate required fields
   if (
     !user_id ||
     !blood_type ||
@@ -87,14 +117,18 @@ exports.addRequest = async (req, res) => {
     !donation_point ||
     !contact_number ||
     !urgency ||
-    !donation_point_lat ||
-    !donation_point_lng ||
-    !location
+    donation_point_lat === undefined ||
+    donation_point_lng === undefined ||
+    !location ||
+    !location.type ||
+    !location.coordinates ||
+    location.coordinates.length !== 2
   ) {
-    return res.status(400).json({ message: 'All required fields must be provided including location.' });
+    return res.status(400).json({ message: 'All required fields must be provided including valid location.' });
   }
 
   try {
+    // Create new blood request
     const request = new RequestBlood({
       user_id,
       patient_name,
@@ -114,10 +148,26 @@ exports.addRequest = async (req, res) => {
 
     await request.save();
 
+    // Find users within 15 km radius of the request location
+    const usersInRange = await User.find({
+      location: {
+        $nearSphere: {
+          $geometry: location,
+          $maxDistance: 15000, // 15,000 meters = 15 km
+        },
+      },
+      blood_type: blood_type, // optional: notify only users with matching blood type
+      status: "active", // optional: only active users
+    });
+
+    // Send notification to each user found
+    await sendNotificationToUsers(usersInRange, `New blood request for ${blood_type} near your area.`);
+
     res.status(200).json({
       status: 200,
-      message: 'Request Created',
+      message: 'Request Created and notifications sent',
       request,
+      notifiedUsersCount: usersInRange.length,
     });
   } catch (err) {
     console.error('Add request error:', err);
@@ -126,7 +176,8 @@ exports.addRequest = async (req, res) => {
 };
 
 
-// uodate request
+
+// update request
 exports.updateRequest = async (req, res) => {
   const {
     user_id,

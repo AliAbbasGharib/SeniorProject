@@ -1,26 +1,40 @@
 const mongoose = require("mongoose");
 
-const notificationSchema = new mongoose.Schema({
+const NotificationSchema = new mongoose.Schema({
     user_id:
     {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User", required: true
     },
-    message:
+    title:
     {
         type: String,
         required: true
     },
-    read: {
+    body:
+    {
+        type: String,
+        required: true
+    },
+    type:
+    {
+        type: String,
+        default: "general"
+    }, // or 'blood_request', 'alert', etc.
+    related_request_id:
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "RequestBlood"
+    },
+    isRead: {
         type: Boolean,
         default: false
-
     },
-    created_at:
+    createdAt:
     {
         type: Date,
         default: Date.now
-    }
+    },
 });
 
-module.exports = mongoose.model("Notification", notificationSchema);
+module.exports = mongoose.model("Notification", NotificationSchema);
