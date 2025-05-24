@@ -279,16 +279,17 @@ exports.countDonorsByBloodType = async (req, res) => {
         const counts = await User.aggregate([
             {
                 $group: {
-                    blood_type: "$blood_type",
+                    _id: "$blood_type",
                     count: { $sum: 1 }
                 }
             }
         ]);
+        console.log(counts)
 
         // Convert array to object: { A+: 10, B-: 5, ... }
         const result = {};
         counts.forEach(item => {
-            result[item.blood_type] = item.count;
+            result[item._id] = item.count;
         });
 
         res.status(200).json({
