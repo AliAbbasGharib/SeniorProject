@@ -275,7 +275,16 @@ exports.getAvailableDonors = async (req, res) => {
 
 exports.countDonorsByBloodType = async (req, res) => {
     try {
+        console.log("📌 Reached controller");
 
+        // Check if User model is valid
+        console.log("Model aggregate type:", typeof User.aggregate); // should be "function"
+
+        // Check if any user exists
+        const testUser = await User.findOne();
+        console.log("🔍 Sample User:", testUser);
+
+        // Run aggregation
         const counts = await User.aggregate([
             {
                 $group: {
@@ -284,21 +293,23 @@ exports.countDonorsByBloodType = async (req, res) => {
                 }
             }
         ]);
-        console.log(counts)
+        console.log("✅ Aggregation result:", counts);
 
-        // Convert array to object: { A+: 10, B-: 5, ... }
+        // Format result
         const result = {};
         counts.forEach(item => {
             result[item._id] = item.count;
         });
 
+        // Send response
         res.status(200).json({
             status: 200,
             message: "Donor count by blood type",
             data: result
         });
     } catch (err) {
-        console.error("Error counting donors by blood type:", err.stack || err);
+        console.error("❌ Error during aggregation:", err.message);
+        console.error(err.stack);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
