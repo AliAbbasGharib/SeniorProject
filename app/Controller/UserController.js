@@ -273,23 +273,21 @@ exports.getAvailableDonors = async (req, res) => {
     }
 };
 
-exports.countDonorsByBloodType = async (req, res) => {
+const Users = require('../Model/User');
+
+exports.countAllBloodTypes = async (req, res) => {
     try {
+        const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
-        const counts = await User.aggregate([
-            {
-                $group: {
-                    blood_type: "$blood_type",
-                    count: { $sum: 1 }
-                }
-            }
-        ]);
+        const counts = await Promise.all(
+            bloodTypes.map(async (type) => {
+                const count = await User.countDocuments({ blood_type: type });
+                return { [type]: count };
+            })
+        );
 
-        // Convert array to object: { A+: 10, B-: 5, ... }
-        const result = {};
-        counts.forEach(item => {
-            result[item.blood_type] = item.count;
-        });
+        // Merge array of objects into one object
+        const result = Object.assign({}, ...counts);
 
         res.status(200).json({
             status: 200,
@@ -297,9 +295,8 @@ exports.countDonorsByBloodType = async (req, res) => {
             data: result
         });
     } catch (err) {
-        console.error("Error counting donors by blood type:", err.stack || err);
+        console.error("❌ Error:", err.message);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
-
 

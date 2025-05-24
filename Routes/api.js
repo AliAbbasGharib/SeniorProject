@@ -26,7 +26,7 @@ router.put("/user/update/:id", AuthMiddleware, UserController.updateUser);
 router.delete("/user/:id", AuthMiddleware, CheckAdmin, UserController.deleteUser);
 router.put("/user/status/:id", AuthMiddleware, CheckAdmin, UserController.statusUser);
 router.put("/user/change-password/:id", AuthMiddleware, UserController.ChangePassword);
-router.get("/available-donor", UserController.getAvailableDonors);
+router.get("/available-donor", AuthMiddleware, UserController.getAvailableDonors);
 router.get('/count-by-blood-type', AuthMiddleware, UserController.countAllBloodTypes);
 router.put("/user/update-profile", AuthMiddleware, UserController.updateOwnProfile);
 // User-protected Routes
