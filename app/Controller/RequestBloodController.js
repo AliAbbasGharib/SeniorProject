@@ -146,7 +146,7 @@ exports.addRequest = async (req, res) => {
       status: 200,
       message: 'Request Created and notifications sent',
       request,
-      notifiedUsersCount: usersInRange.length,
+      notifiedUsersCount: nearbyUsers.length,
     });
   } catch (err) {
     console.error('Add request error:', err);
