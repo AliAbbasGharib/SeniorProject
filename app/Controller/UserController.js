@@ -57,7 +57,7 @@ exports.getSpecificUser = async (req, res) => {
 
 // Add new user
 exports.addUser = async (req, res) => {
-    const { name, email, password, phone_number, date_of_birth, gender, blood_type,
+    const { name, email, password, phone_number, date_of_birth, gender, blood_type, donation_availability,
         address, last_donation_date, location,
         role } = req.body;
     if (!name || !email || !password || !role) {
@@ -77,6 +77,7 @@ exports.addUser = async (req, res) => {
             date_of_birth,
             gender,
             blood_type,
+            donation_availability,
             address,
             last_donation_date,
             location,
@@ -104,6 +105,7 @@ exports.updateUser = async (req, res) => {
         date_of_birth,
         gender,
         blood_type,
+        donation_availability,
         address,
         last_donation_date,
         role
@@ -120,6 +122,7 @@ exports.updateUser = async (req, res) => {
         user.role = role;
         user.date_of_birth = date_of_birth;
         user.blood_type = blood_type;
+        user.donation_availability = donation_availability;
         user.gender = gender;
         user.address = address;
         user.last_donation_date = last_donation_date;

@@ -30,6 +30,7 @@ module.exports.register = async (req, res) => {
             date_of_birth,
             gender,
             blood_type,
+            donation_availability,
             address,
             last_donation_date,
             location,

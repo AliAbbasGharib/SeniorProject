@@ -50,7 +50,8 @@ const userSchema = new schema({
     },
     donation_availability: {
         type: String,
-        enum: ["available", "non-available"],
+        enum: ["available", "unavailable"],
+        default: 'unavailable',
     },
 
     // Add GeoJSON location field here:
