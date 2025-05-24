@@ -1,4 +1,3 @@
-const Users = require('../../Models/Users');
 const User = require('../../Models/Users');
 const bcrypt = require('bcryptjs');
 
@@ -274,24 +273,21 @@ exports.getAvailableDonors = async (req, res) => {
     }
 };
 
-exports.countDonorsByBloodType = async (req, res) => {
-    console.log("🔧 countDonorsByBloodType controller hit");
+const Users = require('../Model/User');
+
+exports.countAllBloodTypes = async (req, res) => {
     try {
-        const counts = await Users.aggregate([
-            {
-                $group: {
-                    _id: "$blood_type",
-                    count: { $sum: 1 }
-                }
-            }
-        ]);
+        const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
-        console.log("✅ Aggregation result:", counts);
+        const counts = await Promise.all(
+            bloodTypes.map(async (type) => {
+                const count = await User.countDocuments({ blood_type: type });
+                return { [type]: count };
+            })
+        );
 
-        const result = {};
-        counts.forEach(item => {
-            result[item._id] = item.count;
-        });
+        // Merge array of objects into one object
+        const result = Object.assign({}, ...counts);
 
         res.status(200).json({
             status: 200,
@@ -299,9 +295,8 @@ exports.countDonorsByBloodType = async (req, res) => {
             data: result
         });
     } catch (err) {
-        console.error("❌ Aggregation failed!");
-        console.error("Message:", err.message);
-        console.error("Stack:", err.stack);
+        console.error("❌ Error:", err.message);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
+
