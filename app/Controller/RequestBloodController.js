@@ -67,6 +67,9 @@ exports.addRequest = async (req, res) => {
     blood_type,
     quantity,
     donation_point,
+    donation_point_lat,
+    donation_point_lng,
+    location,
     contact_number,
     request_date,
     description,
@@ -74,10 +77,21 @@ exports.addRequest = async (req, res) => {
     urgency,
   } = req.body;
 
-  const user_id = req.user._id || req.userId;  // depending on your auth middleware
+  const user_id = req.user?._id || req.userId;
 
-  if (!user_id || !blood_type || !quantity || !donation_point || !contact_number || !urgency) {
-    return res.status(400).json({ message: 'All required fields must be provided.' });
+  // Basic required fields validation
+  if (
+    !user_id ||
+    !blood_type ||
+    !quantity ||
+    !donation_point ||
+    !contact_number ||
+    !urgency ||
+    !donation_point_lat ||
+    !donation_point_lng ||
+    !location
+  ) {
+    return res.status(400).json({ message: 'All required fields must be provided including location.' });
   }
 
   try {
@@ -87,6 +101,9 @@ exports.addRequest = async (req, res) => {
       blood_type,
       quantity,
       donation_point,
+      donation_point_lat,
+      donation_point_lng,
+      location,
       contact_number,
       description,
       transportation,
@@ -108,6 +125,7 @@ exports.addRequest = async (req, res) => {
   }
 };
 
+
 // uodate request
 exports.updateRequest = async (req, res) => {
   const {
@@ -116,6 +134,9 @@ exports.updateRequest = async (req, res) => {
     blood_type,
     quantity,
     donation_point,
+    donation_point_lat,
+    donation_point_lng,
+    location,
     contact_number,
     description,
     transportation,
@@ -135,12 +156,20 @@ exports.updateRequest = async (req, res) => {
     request.blood_type = blood_type || request.blood_type;
     request.quantity = quantity || request.quantity;
     request.donation_point = donation_point || request.donation_point;
+    request.donation_point_lat = donation_point_lat || request.donation_point_lat;
+    request.donation_point_lng = donation_point_lng || request.donation_point_lng;
+
+    // Update location if coordinates are provided
+    if (location && location.type === 'Point' && Array.isArray(location.coordinates)) {
+      request.location = location;
+    }
+
     request.contact_number = contact_number || request.contact_number;
     request.description = description || request.description;
-    request.transportation = transportation || request.transportation;  // fixed here
+    request.transportation = transportation || request.transportation;
     request.request_date = request_date || request.request_date;
     request.urgency = urgency || request.urgency;
-    request.status = done_status || request.done_status;
+    request.done_status = done_status || request.done_status;
 
     await request.save();
 
@@ -154,6 +183,7 @@ exports.updateRequest = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 exports.deleteRequest = async (req, res) => {
   try {
