@@ -50,10 +50,26 @@ const userSchema = new schema({
     },
     donation_availability: {
         type: String,
-        enum: ["available","non-available"],
+        enum: ["available", "non-available"],
     },
-    
+
+    // Add GeoJSON location field here:
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true,
+            default: 'Point',
+        },
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            required: true,
+        }
+    },
 });
+
+// Create 2dsphere index for geospatial queries
+userSchema.index({ location: '2dsphere' });
 
 const Users = mongoose.model("User", userSchema);
 

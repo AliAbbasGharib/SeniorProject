@@ -1,5 +1,5 @@
-const moongoose = require('mongoose');
-const schema = moongoose.Schema;
+const mongoose = require('mongoose');
+const schema = mongoose.Schema;
 
 const requestBloodSchema = new schema({
     user_id: {
@@ -54,7 +54,23 @@ const requestBloodSchema = new schema({
         default: "non complete",
         required: true
     },
-},{timestamps: true});
+    // Add this location field (GeoJSON Point)
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true,
+            default: 'Point'
+        },
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            required: true
+        }
+    }
+}, { timestamps: true });
 
-const RequestBlood = moongoose.model('RequestBlood', requestBloodSchema);
+// Create 2dsphere index for geospatial queries
+requestBloodSchema.index({ location: '2dsphere' });
+
+const RequestBlood = mongoose.model('RequestBlood', requestBloodSchema);
 module.exports = RequestBlood;
