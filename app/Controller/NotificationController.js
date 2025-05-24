@@ -1,57 +1,34 @@
 // controllers/NotificationController.js
 const Notification = require("../models/Notification");
+const User = require("../models/User");
 
-// Get all notifications for a user (latest first)
-exports.getUserNotifications = async (req, res) => {
+// Send notification to all registered users
+exports.sendNotificationToAllUsers = async (req, res) => {
     try {
-        const userId = req.user?._id || req.userId;
+        const { title, body } = req.body;
 
-        const notifications = await Notification.find({ user_id: userId })
-            .sort({ createdAt: -1 });
-
-        res.status(200).json({ status: 200, notifications });
-    } catch (err) {
-        console.error("Error fetching notifications:", err);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-// Mark a notification as read
-exports.markAsRead = async (req, res) => {
-    try {
-        const notificationId = req.params.id;
-
-        const notification = await Notification.findByIdAndUpdate(
-            notificationId,
-            { isRead: true },
-            { new: true }
-        );
-
-        if (!notification) {
-            return res.status(404).json({ message: "Notification not found" });
+        if (!title || !body) {
+            return res.status(400).json({ message: "Title and body are required" });
         }
 
-        res.status(200).json({ status: 200, message: "Marked as read", notification });
-    } catch (err) {
-        console.error("Error marking as read:", err);
-        res.status(500).json({ message: "Server error" });
-    }
-};
+        // Get all active users
+        const users = await User.find({ status: "active" });
 
-// Delete a notification
-exports.deleteNotification = async (req, res) => {
-    try {
-        const notificationId = req.params.id;
+        // Prepare notification documents for bulk insert
+        const notifications = users.map(user => ({
+            user_id: user._id,
+            title,
+            body,
+        }));
 
-        const deleted = await Notification.findByIdAndDelete(notificationId);
+        // Insert all notifications at once
+        await Notification.insertMany(notifications);
 
-        if (!deleted) {
-            return res.status(404).json({ message: "Notification not found" });
-        }
+        // Optionally: You can also trigger push notifications here (if you have device tokens)
 
-        res.status(200).json({ status: 200, message: "Notification deleted" });
-    } catch (err) {
-        console.error("Error deleting notification:", err);
+        res.status(200).json({ message: `Notifications sent to ${users.length} users.` });
+    } catch (error) {
+        console.error("Error sending notifications:", error);
         res.status(500).json({ message: "Server error" });
     }
 };

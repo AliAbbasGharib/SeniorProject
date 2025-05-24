@@ -39,7 +39,5 @@ router.delete("/request/:id", AuthMiddleware, AuthRequestBlood, RequestBloodCont
 router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.updateDoneStatus);
 
 
-router.get("/notifications", AuthMiddleware, NotificationController.getUserNotifications);
-router.patch("/notifications/:id/read", AuthMiddleware, NotificationController.markAsRead);
-router.delete("/notifications/:id", AuthMiddleware, NotificationController.deleteNotification);
+router.post("/notifications/send-to-all",AuthMiddleware,CheckAdmin,NotificationController.sendNotificationToAllUsers);
 module.exports = router;

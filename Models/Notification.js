@@ -16,16 +16,6 @@ const NotificationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    type:
-    {
-        type: String,
-        default: "general"
-    }, // or 'blood_request', 'alert', etc.
-    related_request_id:
-    {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "RequestBlood"
-    },
     isRead: {
         type: Boolean,
         default: false

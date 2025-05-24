@@ -66,7 +66,6 @@ const userSchema = new schema({
             required: true,
         }
     },
-    fcmTokens: { type: [String], default: [] }, // FCM tokens for push
 });
 
 // Create 2dsphere index for geospatial queries

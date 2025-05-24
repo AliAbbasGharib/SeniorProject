@@ -1,6 +1,5 @@
 const RequestBlood = require('../../Models/RequestBlood');
 const User = require("../../Models/Users");
-const admin = require("firebase-admin");
 //get specific request
 exports.getSpecificRequest = async (req, res) => {
   try {
@@ -62,34 +61,6 @@ exports.getLimitedRequests = async (req, res) => {
 };
 
 
-async function sendNotificationToUsers(users, message) {
-  for (const user of users) {
-    const usersInArea = await User.find({
-      location: {
-        $nearSphere: {
-          $geometry: {
-            type: "Point",
-            coordinates: [donation_point_lng, donation_point_lat],
-          },
-          $maxDistance: 15000,
-        },
-      },
-      blood_type,
-    });
-
-    const tokens = usersInArea.flatMap(user => user.fcmTokens || []);
-
-    if (tokens.length > 0) {
-      await admin.messaging().sendMulticast({
-        tokens,
-        notification: {
-          title: "Urgent Blood Request",
-          body: `Someone nearby needs ${blood_type} blood.`,
-        },
-      });
-    }
-  }
-}
 
 exports.addRequest = async (req, res) => {
   const {
@@ -148,20 +119,28 @@ exports.addRequest = async (req, res) => {
 
     await request.save();
 
-    // Find users within 15 km radius of the request location
-    const usersInRange = await User.find({
+
+    // Find users within 15 km radius (exclude requester)
+    const nearbyUsers = await User.find({
+      _id: { $ne: user_id },  // exclude requester
       location: {
         $nearSphere: {
           $geometry: location,
-          $maxDistance: 15000, // 15,000 meters = 15 km
+          $maxDistance: 15000, // 15 km in meters
         },
       },
-      blood_type: blood_type, // optional: notify only users with matching blood type
-      status: "active", // optional: only active users
+      status: "active",  // optional, only active users
     });
 
-    // Send notification to each user found
-    await sendNotificationToUsers(usersInRange, `New blood request for ${blood_type} near your area.`);
+    // Create notification for each user found
+    const notifications = nearbyUsers.map(user => ({
+      userId: user._id,
+      title: "Urgent Blood Request Nearby",
+      message: `Urgent blood request near you for blood type ${blood_type}. Please help!`,
+    }));
+
+    await Notification.insertMany(notifications);
+
 
     res.status(200).json({
       status: 200,
