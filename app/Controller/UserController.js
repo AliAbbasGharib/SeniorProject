@@ -106,7 +106,6 @@ exports.updateUser = async (req, res) => {
         blood_type,
         address,
         last_donation_date,
-        location,
         role
     } = req.body;
 
@@ -124,7 +123,6 @@ exports.updateUser = async (req, res) => {
         user.gender = gender;
         user.address = address;
         user.last_donation_date = last_donation_date;
-        user.location = location;
 
         await user.save();
 
