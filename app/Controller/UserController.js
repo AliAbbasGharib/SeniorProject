@@ -265,13 +265,14 @@ exports.getAvailableDonors = async (req, res) => {
             users
         });
     } catch (err) {
-        console.error('Error fetching available donors:', err);
-        res.status(500).json({ message: 'Server error', error: err.message });
+        console.error('Error fetching available donors:', err.stack || err);
+        res.status(500).json({ message: 'Server error',  err });
     }
 };
 
 exports.countDonorsByBloodType = async (req, res) => {
     try {
+
         const counts = await User.aggregate([
             {
                 $group: {
@@ -293,22 +294,9 @@ exports.countDonorsByBloodType = async (req, res) => {
             data: result
         });
     } catch (err) {
-        console.error("Error counting donors by blood type:", err);
+        console.error("Error counting donors by blood type:", err.stack || err);
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
 
-exports.saveFcmToken = async (req, res) => {
-    const { userId, token } = req.body;
-
-    try {
-        await User.findByIdAndUpdate(userId, {
-            $addToSet: { fcmTokens: token }, // avoids duplicates
-        });
-
-        res.status(200).json({ message: "Token saved" });
-    } catch (err) {
-        res.status(500).json({ message: "Error saving token" });
-    }
-};
