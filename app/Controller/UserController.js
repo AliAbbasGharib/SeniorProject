@@ -271,7 +271,7 @@ exports.getAvailableDonors = async (req, res) => {
 
 exports.countDonorsByBloodType = async (req, res) => {
     try {
-        const counts = await Users.aggregate([
+        const counts = await User.aggregate([
             {
                 $group: {
                     _id: "$blood_type",
