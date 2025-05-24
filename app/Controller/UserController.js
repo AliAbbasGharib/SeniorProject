@@ -58,7 +58,7 @@ exports.getSpecificUser = async (req, res) => {
 // Add new user
 exports.addUser = async (req, res) => {
     const { name, email, password, phone_number, date_of_birth, gender, blood_type,
-        address, last_donation_date,
+        address, last_donation_date, location,
         role } = req.body;
     if (!name || !email || !password || !role) {
         return res.status(400).json({ message: 'Missing required fields' });
@@ -79,6 +79,7 @@ exports.addUser = async (req, res) => {
             blood_type,
             address,
             last_donation_date,
+            location,
             role,
         });
         await user.save();
@@ -105,6 +106,7 @@ exports.updateUser = async (req, res) => {
         blood_type,
         address,
         last_donation_date,
+        location,
         role
     } = req.body;
 
@@ -122,6 +124,7 @@ exports.updateUser = async (req, res) => {
         user.gender = gender;
         user.address = address;
         user.last_donation_date = last_donation_date;
+        user.location = location;
 
         await user.save();
 
