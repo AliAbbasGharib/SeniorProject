@@ -248,7 +248,7 @@ exports.ChangePassword = async (req, res) => {
 }
 
 // Get donors available to donate (last donation > 3 months ago)
-exports.getAvailableDonorsWithCount = async (req, res) => {
+exports.getAvailableDonors = async (req, res) => {
     try {
         const threeMonthsAgo = new Date();
         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
@@ -284,7 +284,7 @@ exports.getAvailableDonorsWithCount = async (req, res) => {
 
 
 
-exports.countAllAndAvailableBloodTypes = async (req, res) => {
+exports.countAllBloodTypes = async (req, res) => {
     try {
         const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
         const threeMonthsAgo = new Date();
