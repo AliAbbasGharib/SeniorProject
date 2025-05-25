@@ -5,11 +5,17 @@ const bcrypt = require('bcryptjs');
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find();
-        res.status(200).json(users);
+        const count = await User.countDocuments();
+
+        res.status(200).json({
+            totalUsers: count,
+            users: users,
+        });
     } catch (err) {
-        res.status(500).json({ message: 'Error fetching users' });
+        res.status(500).json({ message: "Error fetching users" });
     }
 };
+
 
 // Get authenticated user
 exports.userAuth = async (req, res) => {
