@@ -1,7 +1,7 @@
 module.exports = function (req, res, next) {
     const user = req.user;
 
-    if (user && (user.role === 'admin' || user.role === 'hospital')) {
+    if (user && (user.role === '1995' || user.role === '1996')) {
         return next();
     }
 
