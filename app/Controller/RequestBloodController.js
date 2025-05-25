@@ -120,34 +120,43 @@ exports.addRequest = async (req, res) => {
     await request.save();
 
 
-    // Find users within 15 km radius (exclude requester)
-    const nearbyUsers = await User.find({
-      _id: { $ne: user_id },  // exclude requester
-      location: {
-        $nearSphere: {
-          $geometry: location,
-          $maxDistance: 15000, // 15 km in meters
+    try {
+      const nearbyUsers = await User.find({
+        _id: { $ne: user_id },
+        location: {
+          $nearSphere: {
+            $geometry: location,
+            $maxDistance: 15000,
+          },
         },
-      },
-      status: "active",  // optional, only active users
-    });
+        status: "active",
+      });
 
-    // Create notification for each user found
-    const notifications = nearbyUsers.map(user => ({
-      userId: user._id,
-      title: "Urgent Blood Request Nearby",
-      message: `Urgent blood request near you for blood type ${user.blood_type}. Please help!`,
-    }));
+      const notifications = nearbyUsers.map(user => ({
+        userId: user._id,
+        title: "Urgent Blood Request Nearby",
+        message: `Urgent blood request near you for blood type ${user.blood_type}. Please help!`,
+      }));
 
-    await Notification.insertMany(notifications);
+      await Notification.insertMany(notifications);
 
+      res.status(200).json({
+        status: 200,
+        message: 'Request Created and notifications sent',
+        request,
+        notifiedUsersCount: nearbyUsers.length,
+      });
+    } catch (notificationError) {
+      console.warn("Notifications failed:", notificationError.message);
+      // Still return success for the request
+      res.status(200).json({
+        status: 200,
+        message: 'Request Created but notifications failed',
+        request,
+        notifiedUsersCount: 0,
+      });
+    }
 
-    res.status(200).json({
-      status: 200,
-      message: 'Request Created and notifications sent',
-      request,
-      notifiedUsersCount: nearbyUsers.length,
-    });
   } catch (err) {
     console.error('Add request error:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
