@@ -54,7 +54,6 @@ const userSchema = new schema({
         default: 'available',
     },
 
-    // Add GeoJSON location field here:
     location: {
         type: {
             type: String,

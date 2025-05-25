@@ -248,24 +248,32 @@ exports.ChangePassword = async (req, res) => {
 }
 
 // Get donors available to donate (last donation > 3 months ago)
-exports.getAvailableDonors = async (req, res) => {
+exports.getAvailableDonorsWithCount = async (req, res) => {
     try {
         const threeMonthsAgo = new Date();
         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-        const users = await User.find({
-            role: '2001',  // make sure this matches your user roles
+        const filter = {
+            role: '2001',
             donation_availability: "available",
             $or: [
                 { last_donation_date: { $lte: threeMonthsAgo } },
                 { last_donation_date: { $exists: false } },
                 { last_donation_date: null }
             ]
-        });
+        };
+
+        // Get count first
+        const count = await User.countDocuments(filter);
+
+        // Get the users with the same filter
+        const users = await User.find(filter);
+
         res.status(200).json({
             status: 200,
-            message: `Found ${users.length} available donor(s)`,
-            users
+            count,
+            users,
+            message: `Found ${count} available donor(s)`,
         });
     } catch (err) {
         console.error('Error fetching available donors:', err.stack || err);
@@ -275,28 +283,44 @@ exports.getAvailableDonors = async (req, res) => {
 
 
 
-exports.countAllBloodTypes = async (req, res) => {
+
+exports.countAllAndAvailableBloodTypes = async (req, res) => {
     try {
         const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-        const counts = await Promise.all(
+        const data = {};
+
+        await Promise.all(
             bloodTypes.map(async (type) => {
-                const count = await User.countDocuments({ blood_type: type });
-                return { [type]: count };
+                const totalCount = await User.countDocuments({ blood_type: type });
+
+                const availableCount = await User.countDocuments({
+                    blood_type: type,
+                    donation_availability: "available",
+                    $or: [
+                        { last_donation_date: { $lte: threeMonthsAgo } },
+                        { last_donation_date: { $exists: false } },
+                        { last_donation_date: null },
+                    ],
+                });
+
+                data[type] = {
+                    total: totalCount,
+                    available: availableCount,
+                };
             })
         );
 
-        // Merge array of objects into one object
-        const result = Object.assign({}, ...counts);
-
         res.status(200).json({
             status: 200,
-            message: "Donor count by blood type",
-            data: result
+            message: "Donor counts by blood type (total and available)",
+            data,
         });
     } catch (err) {
         console.error("❌ Error:", err.message);
-        res.status(500).json({ message: 'Server error', error: err.message });
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
