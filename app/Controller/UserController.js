@@ -300,10 +300,14 @@ exports.countAllBloodTypes = async (req, res) => {
 
         await Promise.all(
             bloodTypes.map(async (type) => {
-                const totalCount = await User.countDocuments({ blood_type: type });
+                const totalCount = await User.countDocuments({
+                    blood_type: type,
+                    role: '2001'
+                });
 
                 const availableCount = await User.countDocuments({
                     blood_type: type,
+                    role: "2001",
                     donation_availability: "available",
                     $or: [
                         { last_donation_date: { $lte: threeMonthsAgo } },
