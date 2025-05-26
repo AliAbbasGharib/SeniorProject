@@ -24,7 +24,7 @@ router.get("/users", AuthMiddleware, CheckAdninOrHospital, UserController.getAll
 router.get("/user/:id", AuthMiddleware, CheckAdminOrHospital, UserController.getSpecificUser);
 router.get("/user/limit/:number", AuthMiddleware, CheckAdmin, UserController.getLimitedUsers);
 router.post("/user/add", AuthMiddleware, CheckAdminOrHospital, UserController.addUser);
-router.put("/user/update/:id", AuthMiddleware,CheckAdminOrHospital, UserController.updateUser);
+router.put("/user/update/:id", AuthMiddleware, CheckAdminOrHospital, UserController.updateUser);
 router.delete("/user/:id", AuthMiddleware, CheckAdminOrHospital, UserController.deleteUser);
 router.put("/user/status/:id", AuthMiddleware, CheckAdminOrHospital, UserController.statusUser);
 router.put("/user/change-password/:id", AuthMiddleware, UserController.ChangePassword);
@@ -33,13 +33,14 @@ router.get('/count-by-blood-type', AuthMiddleware, UserController.countAllBloodT
 router.put("/user/update-profile", AuthMiddleware, UserController.updateOwnProfile);
 // User-protected Routes
 router.get("/request", RequestBloodController.getAllRequests);
+router.get("/request/my-activity", AuthMiddleware, RequestBloodController.getMyActivityRequests);
 router.get("/request/:id", RequestBloodController.getSpecificRequest);
 router.get("/request/limit/:number", RequestBloodController.getLimitedRequests);
 router.post("/request/add", AuthMiddleware, RequestBloodController.addRequest);
 router.put("/request/update/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.updateRequest);
 router.delete("/request/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.deleteRequest);
 router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.updateDoneStatus);
-router.get("/request/my-activity", AuthMiddleware, RequestBloodController.getMyActivityRequests);
+
 
 router.post("/notifications/send-to-all", AuthMiddleware, CheckAdminOrHospital, NotificationController.sendNotificationToAllUsers);
 module.exports = router;
