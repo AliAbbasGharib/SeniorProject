@@ -1,6 +1,6 @@
 // controllers/NotificationController.js
 const Notification = require("../../Models/Notification");
-const User = require("../../Models/Notification");
+const User = require("../../Models/Users");
 
 // Send notification to all registered users
 exports.sendNotificationToAllUsers = async (req, res) => {
