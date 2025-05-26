@@ -43,4 +43,5 @@ router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBlood
 
 
 router.post("/notifications/send-to-all", AuthMiddleware, CheckAdminOrHospital, NotificationController.sendNotificationToAllUsers);
+router.get("/notifications", AuthMiddleware, NotificationController.getMyNotifications);
 module.exports = router;
