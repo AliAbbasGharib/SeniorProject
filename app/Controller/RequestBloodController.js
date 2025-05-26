@@ -255,3 +255,22 @@ exports.updateDoneStatus = async (req, res) => {
 
   res.json(request);
 }
+
+exports.getMyActivityRequests = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const requests = await RequestBlood.find({ user_id: userId }).sort({ createdAt: -1 });
+    if (!requests || requests.length === 0) {
+      return res.status(404).json({ message: 'No requests found for this user' });
+    }
+    res.status(200).json({
+      status: 200,
+      message: 'Requests found',
+      requests,
+    });
+  } catch (err) {
+    console.error('Get requests by user error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};

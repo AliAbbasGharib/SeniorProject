@@ -39,7 +39,7 @@ router.post("/request/add", AuthMiddleware, RequestBloodController.addRequest);
 router.put("/request/update/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.updateRequest);
 router.delete("/request/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.deleteRequest);
 router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBloodController.updateDoneStatus);
-
+router.get("/request/my-activity", AuthMiddleware, RequestBloodController.getMyActivityRequests);
 
 router.post("/notifications/send-to-all", AuthMiddleware, CheckAdminOrHospital, NotificationController.sendNotificationToAllUsers);
 module.exports = router;
