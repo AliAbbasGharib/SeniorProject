@@ -17,7 +17,7 @@ app.use(express.json());
 
 app.use(cors({
     origin: ['https://seniorproject-1-3rbo.onrender.com', 'http://localhost:3000',
-        'https://683366b58d3b000008afb666--redlink12.netlify.app'],
+        'https://6834bb558c860300080e0057--redlink12.netlify.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
