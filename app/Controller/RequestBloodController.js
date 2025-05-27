@@ -1,6 +1,6 @@
 const RequestBlood = require('../../Models/RequestBlood');
 const User = require("../../Models/Users");
-const Notification = require("../../Models/Notification");
+const Notification = require("../../Models/Notification")
 //get specific request
 exports.getSpecificRequest = async (req, res) => {
   try {
@@ -134,9 +134,9 @@ exports.addRequest = async (req, res) => {
       });
 
       const notifications = nearbyUsers.map(user => ({
-        userId: user._id,
+        user_id: user._id,
         title: "Urgent Blood Request Nearby",
-        message: `Urgent blood request near you for blood type ${user.blood_type}. Please help!`,
+        body: `Urgent blood request near you for blood type ${user.blood_type}. Please help!`,
       }));
 
       await Notification.insertMany(notifications);
