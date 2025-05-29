@@ -277,10 +277,8 @@ exports.getMyActivityRequests = async (req, res) => {
 };
 
 exports.getMatchingRequests = async (req, res) => {
-  const userId = req.user.id;
   try {
     const matchingRequest = await RequestBlood.find({
-      user_id: userId,
       blood_type: req.user.blood_type,
       location: req.user.location,
     }).sort({ createdAt: -1 });
