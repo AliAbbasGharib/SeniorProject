@@ -278,21 +278,28 @@ exports.getMyActivityRequests = async (req, res) => {
 
 exports.getMatchingRequests = async (req, res) => {
   try {
-    const matchingRequest = await RequestBlood.find({
-      blood_type: req.user.blood_type,
-      location: req.user.location,
+    const { blood_type, location } = req.user;
+
+    if (!blood_type || !location) {
+      return res.status(400).json({ message: 'User blood type or location missing' });
+    }
+
+    const matchingRequests = await RequestBlood.find({
+      blood_type,
+      location,
     }).sort({ createdAt: -1 });
 
-    if (!matchingRequest || matchingRequest.length === 0) {
-      return res.status(404).json({ message: 'No requests found for this user' })
+    if (!matchingRequests.length) {
+      return res.status(404).json({ message: 'No matching blood requests found' });
     }
-    res.status(200).json({
-      status: 200,
-      message: 'Requests found',
-      matchingRequest,
-    })
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
 
-}
+    return res.status(200).json({
+      status: 200,
+      message: 'Matching requests retrieved successfully',
+      data: matchingRequests,
+    });
+  } catch (err) {
+    console.error('Error fetching matching requests:', err);
+    return res.status(500).json({ message: 'Internal server error', error: err.message });
+  }
+};
