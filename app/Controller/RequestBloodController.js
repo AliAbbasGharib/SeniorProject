@@ -285,8 +285,8 @@ exports.getMatchingRequests = async (req, res) => {
     }
 
     const matchingRequests = await RequestBlood.find({
-      blood_type,
-      location,
+      blood_type: blood_type,
+      location: location,
     }).sort({ createdAt: -1 });
 
     if (!matchingRequests.length) {
