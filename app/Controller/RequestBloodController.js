@@ -278,15 +278,14 @@ exports.getMyActivityRequests = async (req, res) => {
 
 exports.getMatchingRequests = async (req, res) => {
   try {
-    const { blood_type, location } = req.user;
+    const { blood_type} = req.user;
 
-    if (!blood_type || !location) {
+    if (!blood_type) {
       return res.status(400).json({ message: 'User blood type or location missing' });
     }
 
     const matchingRequests = await RequestBlood.find({
       blood_type: blood_type,
-      location: location,
     }).sort({ createdAt: -1 });
 
     if (!matchingRequests.length) {
