@@ -275,3 +275,26 @@ exports.getMyActivityRequests = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+exports.getMatchingRequests = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const matchingRequest = await RequestBlood.find({
+      user_id: userId,
+      blood_type: req.user.blood_type,
+      location: req.user.location,
+    }).sort({ createdAt: -1 });
+
+    if (!matchingRequest || matchingRequest.length === 0) {
+      return res.status(404).json({ message: 'No requests found for this user' })
+    }
+    res.status(200).json({
+      status: 200,
+      message: 'Requests found',
+      matchingRequest,
+    })
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+
+}

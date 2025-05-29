@@ -34,6 +34,7 @@ router.put("/user/update-profile", AuthMiddleware, UserController.updateOwnProfi
 // User-protected Routes
 router.get("/request", RequestBloodController.getAllRequests);
 router.get("/request/my-activity", AuthMiddleware, RequestBloodController.getMyActivityRequests);
+router.get("/request/matchingRequest",AuthMiddleware, RequestBloodController.getMatchingRequests);
 router.get("/request/:id", RequestBloodController.getSpecificRequest);
 router.get("/request/limit/:number", RequestBloodController.getLimitedRequests);
 router.post("/request/add", AuthMiddleware, RequestBloodController.addRequest);
