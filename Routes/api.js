@@ -45,6 +45,6 @@ router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBlood
 
 router.post("/notifications/send-to-all", AuthMiddleware, CheckAdminOrHospital, NotificationController.sendNotificationToAllUsers);
 router.get("/notifications", AuthMiddleware, NotificationController.getMyNotifications);
-router.get("/unread-count", auth, NotificationController.getUnreadCount);
-router.post("/mark-read", auth, NotificationController.markAllAsRead);
+router.get("/unread-count", AuthMiddleware, NotificationController.getUnreadCount);
+router.post("/mark-read", AuthMiddleware, NotificationController.markAllAsRead);
 module.exports = router;
