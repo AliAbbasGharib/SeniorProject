@@ -17,9 +17,8 @@ const NotificationSchema = new mongoose.Schema({
         required: true
     },
     isRead: {
-        type: String,
-        enum: ["read", "unread"],
-        default: "unread"
+        type: Boolean,
+        default: false
     },
     createdAt:
     {
