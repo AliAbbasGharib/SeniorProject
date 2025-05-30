@@ -36,7 +36,7 @@ exports.sendNotificationToAllUsers = async (req, res) => {
 
 exports.getMyNotifications = async (req, res) => {
     try {
-        const userId = req.user.id; 
+        const userId = req.user.id;
 
         const notifications = await Notification.find({ user_id: userId }).sort({ createdAt: -1 });
 
@@ -49,6 +49,23 @@ exports.getMyNotifications = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
+exports.getUnreadCount = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const count = await Notification.countDocuments({
+            user_id: userId,
+            isRead: false
+        });
+
+        res.status(200).json({ unreadCount: count });
+    } catch (error) {
+        console.error("Error getting unread count:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 
 exports.markAllAsRead = async (req, res) => {
     try {

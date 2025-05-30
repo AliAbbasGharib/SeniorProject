@@ -34,7 +34,7 @@ router.put("/user/update-profile", AuthMiddleware, UserController.updateOwnProfi
 // User-protected Routes
 router.get("/request", RequestBloodController.getAllRequests);
 router.get("/request/my-activity", AuthMiddleware, RequestBloodController.getMyActivityRequests);
-router.get("/request/matchingRequest",AuthMiddleware, RequestBloodController.getMatchingRequests);
+router.get("/request/matchingRequest", AuthMiddleware, RequestBloodController.getMatchingRequests);
 router.get("/request/:id", RequestBloodController.getSpecificRequest);
 router.get("/request/limit/:number", RequestBloodController.getLimitedRequests);
 router.post("/request/add", AuthMiddleware, RequestBloodController.addRequest);
@@ -45,5 +45,6 @@ router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBlood
 
 router.post("/notifications/send-to-all", AuthMiddleware, CheckAdminOrHospital, NotificationController.sendNotificationToAllUsers);
 router.get("/notifications", AuthMiddleware, NotificationController.getMyNotifications);
-router.post("/mark-as-read", AuthMiddleware,NotificationController.markAllAsRead);
+router.get("/unread-count", auth, NotificationController.getUnreadCount);
+router.post("/mark-read", auth, NotificationController.markAllAsRead);
 module.exports = router;
