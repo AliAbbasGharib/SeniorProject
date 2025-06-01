@@ -6,7 +6,6 @@ exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find();
         const count = await User.countDocuments();
-
         res.status(200).json({
             totalUsers: count,
             users: users,
@@ -28,8 +27,8 @@ exports.getLimitedUsers = async (req, res) => {
         if (isNaN(limit) || limit <= 0) {
             return res.status(400).json({ message: 'Invalid limit number' });
         }
-
         const requests = await User.find().limit(limit);
+         const count = await User.countDocuments();
         if (!requests || requests.length === 0) {
             return res.status(404).json({ message: 'No User found' });
         }
