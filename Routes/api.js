@@ -44,6 +44,9 @@ router.put("/request/status/:id", AuthMiddleware, AuthRequestBlood, RequestBlood
 
 router.post("/notifications/send-to-all", AuthMiddleware, CheckAdminOrHospital, NotificationController.sendNotificationToAllUsers);
 router.get("/notifications", AuthMiddleware, NotificationController.getMyNotifications);
+router.get("/notification", AuthMiddleware, NotificationController.getSpecificNotification);
+router.delete("/notification/:id", AuthMiddleware, NotificationController.deleteNotifications);
+router.put("/notification/update/:id", AuthMiddleware, NotificationController.updateNotifications);
 router.get("/unread-count", AuthMiddleware, NotificationController.getUnreadCount);
 router.post("/mark-read", AuthMiddleware, NotificationController.markAllAsRead);
 

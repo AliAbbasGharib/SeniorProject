@@ -39,7 +39,7 @@ exports.getLimitedUsers = async (req, res) => {
             totalUsers: count,
             users: users,
         });
-    } catch (err) {
+    } catch (err) { 
         console.error('Get limited users error:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }

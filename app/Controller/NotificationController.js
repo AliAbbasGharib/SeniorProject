@@ -33,7 +33,20 @@ exports.sendNotificationToAllUsers = async (req, res) => {
     }
 };
 
+exports.getSpecificNotification = async (req, res) => {
+    try {
+        const notification = await Notification.findById(req.params.id);
+        if (!notification) return res.status(404).json({ message: 'Notification not found' });
 
+        res.status(200).json({
+            status: 200,
+            message: 'User',
+            data: notification
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 exports.getMyNotifications = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -82,3 +95,39 @@ exports.markAllAsRead = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+exports.updateNotifications = async (eq, res) => {
+    const {
+        title,
+        body,
+    } = req.body;
+    try {
+        const notification = await Notification.findById(req.params.id);
+
+        if (!notification) return res.status(404).json({ message: 'User not found' });
+
+        notification.title = title;
+        notification.body = body;
+
+        await notification.save();
+        res.status(200).json({
+            status: 200,
+            message: 'Notifcation Updated',
+            notification
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+exports.deleteNotifications = async (res, req) => {
+    try {
+        const notification = await Notification.findByIdAndDelete(req.params.id);
+        if (!notification) return res.status(404).json({ message: 'Notification not found' });
+        res.status(200).json({ status: 200, message: 'Notification Deleted' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+}
