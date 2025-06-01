@@ -1,32 +1,36 @@
 require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Initialize with your API key from environment variable
+// Initialize Gemini AI with correct API key from .env
 const genAI = new GoogleGenerativeAI(process.env.AIzaSyCllV0udmg8P8YHeJvH2HXkpaAXCi2rj3o);
 
-async function analyzeDonorAnswer(answer) {
-    const promptMessages = [
-        {
-            "role": "system",
-            "content": "You are a medical assistant evaluating if a blood donor is eligible based on their medication."
-        },
-        {
-            "role": "user",
-            "content": `Is it safe for someone taking the following medications to donate blood: ${answer}? Please answer Yes or No and explain why.`
-        }
-    ];
+exports.analyzeDonorAnswer = async (answer, req) => {
+    const userId = req.user?.id || "Unknown";
 
     try {
-        // Create a chat completion with Google Gemini
-        const model = genAI.getChatModel({ model: "chat-bison-001" }); // or "gemini-pro"
-        const response = await model.chat({ messages: promptMessages });
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-        // response contains the AI's reply
-        return response.text;
+        const prompt = `
+You are a medical assistant evaluating if a blood donor is eligible based on their medication.
+
+User ID: ${userId}
+
+Question: Is it safe for someone taking the following medications to donate blood?
+
+Medications: ${answer}
+
+Please respond with:
+- Decision: Yes or No
+- Reason: Short explanation.
+        `;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = await response.text();
+
+        return text;
     } catch (error) {
-        console.error("Google Generative AI error:", error);
+        console.error("Gemini AI error:", error.message);
         return "Unable to process the request at this time.";
     }
-}
-
-module.exports = { analyzeDonorAnswer };
+};
