@@ -1,5 +1,5 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const Screening = require("../models/Screening");
+const Screening = require("../../Models/DonationBlood");
 require("dotenv").config();
 
 const genAI = new GoogleGenerativeAI(process.env.AIzaSyCllV0udmg8P8YHeJvH2HXkpaAXCi2rj3o);
