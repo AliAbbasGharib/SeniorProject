@@ -1,27 +1,32 @@
+require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const openai = new GoogleGenerativeAI(process.env.AIzaSyCllV0udmg8P8YHeJvH2HXkpaAXCi2rj3o);
+// Initialize with your API key from environment variable
+const genAI = new GoogleGenerativeAI(process.env.AIzaSyCllV0udmg8P8YHeJvH2HXkpaAXCi2rj3o);
 
-exports.analyzeDonorAnswer = async (answer) => {
+async function analyzeDonorAnswer(answer) {
+    const promptMessages = [
+        {
+            "role": "system",
+            "content": "You are a medical assistant evaluating if a blood donor is eligible based on their medication."
+        },
+        {
+            "role": "user",
+            "content": `Is it safe for someone taking the following medications to donate blood: ${answer}? Please answer Yes or No and explain why.`
+        }
+    ];
+
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        // Create a chat completion with Google Gemini
+        const model = genAI.getChatModel({ model: "chat-bison-001" }); // or "gemini-pro"
+        const response = await model.chat({ messages: promptMessages });
 
-        const result = await model.generateContent([
-            {
-                role: "user",
-                parts: [
-                    {
-                        text: `Is it safe for someone taking the following medications to donate blood: ${answer}? Please answer Yes or No and explain why.`,
-                    },
-                ],
-            },
-        ]);
-
-        const response = await result.response;
-        const text = await response.text();
-        return text;
+        // response contains the AI's reply
+        return response.text;
     } catch (error) {
-        console.error("Gemini API error:", error.message);
+        console.error("Google Generative AI error:", error);
         return "Unable to process the request at this time.";
     }
-};
+}
+
+module.exports = { analyzeDonorAnswer };

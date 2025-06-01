@@ -20,7 +20,7 @@ router.post("/logout", AuthController.logout);
 router.get("/user", AuthMiddleware, UserController.userAuth);
 // protected Routes
 // Admin-protected Routes
-router.get("/users", AuthMiddleware, CheckAdninOrHospital, UserController.getAllUsers);
+router.get("/users", AuthMiddleware, CheckAdminOrHospital, UserController.getAllUsers);
 router.get("/user/:id", AuthMiddleware, CheckAdminOrHospital, UserController.getSpecificUser);
 router.get("/user/limit/:number", AuthMiddleware, CheckAdmin, UserController.getLimitedUsers);
 router.post("/user/add", AuthMiddleware, CheckAdminOrHospital, UserController.addUser);
@@ -47,7 +47,7 @@ router.get("/notifications", AuthMiddleware, NotificationController.getMyNotific
 router.get("/unread-count", AuthMiddleware, NotificationController.getUnreadCount);
 router.post("/mark-read", AuthMiddleware, NotificationController.markAllAsRead);
 
-router.post("/pre-screening",AuthMiddleware,DonationController.analyzeDonorAnswer);
+router.post("/pre-screening", AuthMiddleware, DonationController.analyzeDonorAnswer);
 
 
 module.exports = router;
