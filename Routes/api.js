@@ -47,7 +47,9 @@ router.get("/notifications", AuthMiddleware, NotificationController.getMyNotific
 router.get("/unread-count", AuthMiddleware, NotificationController.getUnreadCount);
 router.post("/mark-read", AuthMiddleware, NotificationController.markAllAsRead);
 
-router.post("/pre-screening", AuthMiddleware, DonationController.analyzeDonorAnswer);
+router.post("/start", AuthMiddleware, DonationController.startScreening);
+router.post("/continue", AuthMiddleware, DonationController.continueScreening);
+
 
 
 module.exports = router;
