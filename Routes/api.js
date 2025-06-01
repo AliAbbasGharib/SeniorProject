@@ -22,7 +22,7 @@ router.get("/user", AuthMiddleware, UserController.userAuth);
 // Admin-protected Routes
 router.get("/users", AuthMiddleware, CheckAdminOrHospital, UserController.getAllUsers);
 router.get("/user/:id", AuthMiddleware, CheckAdminOrHospital, UserController.getSpecificUser);
-router.get("/user/limit/:number", AuthMiddleware, CheckAdmin, UserController.getLimitedUsers);
+router.get("/users/limit/:number", AuthMiddleware, CheckAdminOrHospital, UserController.getLimitedUsers);
 router.post("/user/add", AuthMiddleware, CheckAdminOrHospital, UserController.addUser);
 router.put("/user/update/:id", AuthMiddleware, CheckAdminOrHospital, UserController.updateUser);
 router.delete("/user/:id", AuthMiddleware, CheckAdminOrHospital, UserController.deleteUser);
