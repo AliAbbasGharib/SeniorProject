@@ -27,16 +27,17 @@ exports.getLimitedUsers = async (req, res) => {
         if (isNaN(limit) || limit <= 0) {
             return res.status(400).json({ message: 'Invalid limit number' });
         }
-        const requests = await User.find().limit(limit);
-         const count = await User.countDocuments();
-        if (!requests || requests.length === 0) {
+        const users = await User.find().limit(limit);
+        const count = await User.countDocuments();
+        if (!users || users.length === 0) {
             return res.status(404).json({ message: 'No User found' });
         }
 
         res.status(200).json({
             status: 200,
-            message: `Returning ${requests.length} request(s)`,
-            requests,
+            message: `Returning ${users.length} user(s)`,
+            totalUsers: count,
+            users: users,
         });
     } catch (err) {
         console.error('Get limited users error:', err);
