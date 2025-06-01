@@ -137,6 +137,7 @@ exports.addRequest = async (req, res) => {
         user_id: user._id,
         title: "Urgent Blood Request Nearby",
         body: `Urgent blood request near you for blood type ${request.blood_type}. Please help!`,
+        request_id: request._id,
       }));
 
       await Notification.insertMany(notifications);
