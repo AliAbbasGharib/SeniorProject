@@ -122,12 +122,15 @@ exports.updateNotifications = async (eq, res) => {
     }
 }
 
-exports.deleteNotifications = async (res, req) => {
+exports.deleteNotifications = async (req, res) => {
     try {
         const notification = await Notification.findByIdAndDelete(req.params.id);
-        if (!notification) return res.status(404).json({ message: 'Notification not found' });
+        if (!notification) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
         res.status(200).json({ status: 200, message: 'Notification Deleted' });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
