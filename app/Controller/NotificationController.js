@@ -96,31 +96,43 @@ exports.markAllAsRead = async (req, res) => {
     }
 };
 
-exports.updateNotifications = async (eq, res) => {
-    const {
-        title,
-        body,
-    } = req.body;
+exports.updateNotifications = async (req, res) => {
+    const { title, body } = req.body;
+    const { id } = req.params;
+
     try {
-        const notification = await Notification.findById(req.params.id);
+        // Validate input (basic check)
+        if (!title || !body) {
+            return res.status(400).json({ status: 400, message: 'Title and body are required' });
+        }
 
-        if (!notification) return res.status(404).json({ message: 'User not found' });
+        // Find notification by ID
+        const notification = await Notification.findById(id);
+        if (!notification) {
+            return res.status(404).json({ status: 404, message: 'Notification not found' });
+        }
 
+        // Update fields
         notification.title = title;
         notification.body = body;
 
+        // Save changes
         await notification.save();
+
         res.status(200).json({
             status: 200,
-            message: 'Notifcation Updated',
-            notification
+            message: 'Notification updated successfully',
+            data: notification,
         });
-
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Update Notification Error:', err);
+        res.status(500).json({
+            status: 500,
+            message: 'Internal server error',
+        });
     }
-}
+};
+
 
 exports.deleteNotifications = async (req, res) => {
     try {
