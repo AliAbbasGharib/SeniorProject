@@ -11,31 +11,31 @@ const evaluateEligibility = (responses) => {
 };
 
 exports.submitScreening = async (req, res) => {
-    const userId = req.user?.id; // optional chaining
+  try {
+    const user_id = req.user?._id; // from JWT middleware
     const { responses } = req.body;
 
-    if (!responses || !Array.isArray(responses)) {
-        return res.status(400).json({ error: 'Responses are required' });
+    if (!user_id) {
+      return res.status(401).json({ error: 'Unauthorized: No user found' });
     }
 
-    try {
-        const eligible = evaluateEligibility(responses);
+    const eligible = evaluateEligibility(responses);
 
-        const donor = new Donor({
-            userId,
-            responses,
-            eligible,
-            createdAt: new Date()
-        });
+    const donor = new Donor({
+      user_id,  // Required field from schema
+      responses,
+      eligible
+    });
 
-        await donor.save();
+    await donor.save();
 
-        res.status(201).json({
-            message: 'Screening submitted successfully',
-            eligible
-        });
-    } catch (error) {
-        console.error('Submit error:', error);
-        res.status(500).json({ error: 'Server error', details: error.message });
-    }
+    res.status(201).json({
+      message: 'Screening submitted successfully',
+      eligible
+    });
+  } catch (error) {
+    console.error('Submit error:', error);
+    res.status(500).json({ error: 'Server error', details: error.message });
+  }
 };
+
