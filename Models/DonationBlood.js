@@ -1,19 +1,16 @@
 const mongoose = require('mongoose');
 const schema = mongoose.Schema;
 
-const DonorSchema = new mongoose.Schema({
-    user_id: {
-        type: schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    responses: [
+const ScreeningSchema = new mongoose.Schema({
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    chatHistory: [
         {
-            question: String,
-            answer: String,
+            role: { type: String, enum: ['user', 'assistant'], required: true },
+            content: { type: String, required: true }
         }
     ],
-    eligible: Boolean,
+    eligible: { type: Boolean },
+    completed: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
 });
 

@@ -50,7 +50,7 @@ router.put("/notification/update/:id", AuthMiddleware, NotificationController.up
 router.get("/unread-count", AuthMiddleware, NotificationController.getUnreadCount);
 router.post("/mark-read", AuthMiddleware, NotificationController.markAllAsRead);
 
-router.post("/screening", AuthMiddleware, DonationController.submitScreening);
+router.post("/ai-chat", AuthMiddleware, DonationController.handleAIChat);
 
 
 
