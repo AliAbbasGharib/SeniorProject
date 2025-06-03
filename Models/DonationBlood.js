@@ -1,20 +1,19 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose');
 
-const messageSchema = new Schema({
-    role: String, // 'user' or 'AI'
-    content: String,
-});
-
-const screeningSchema = new Schema({
+const DonorSchema = new mongoose.Schema({
     user_id: {
-        type: Schema.Types.ObjectId,
+        type: schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    messages: [messageSchema],
-    result: String,
+    responses: [
+        {
+            question: String,
+            answer: String,
+        }
+    ],
+    eligible: Boolean,
     createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("DonationBlood", screeningSchema);
+module.exports = mongoose.model('DonationBlood', DonorSchema);
