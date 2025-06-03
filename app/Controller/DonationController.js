@@ -22,7 +22,7 @@ exports.handleAIChat = async (req, res) => {
             if (!screening || screening.completed) {
                 return res.status(400).json({ error: 'Invalid or completed screening session' });
             }
-            screening.chatHistory.push({ role: 'user', content: message });
+            screening.chatHistory.push({ role: '2001', content: message });
         }
 
         const response = await openai.chat.completions.create({
