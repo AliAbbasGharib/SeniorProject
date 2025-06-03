@@ -1,5 +1,5 @@
 const { OpenAI } = require('openai');
-const Screening = require("../../Models/DonationBlood");
+const Screening = require('../../Models/DonationBlood');
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -41,7 +41,7 @@ exports.handleAIChat = async (req, res) => {
         // Save AI response
         screening.chatHistory.push({ role: 'assistant', content: aiReply });
 
-
+        // Check if AI gave a final verdict
         const lowerReply = aiReply.toLowerCase();
         if (
             lowerReply.includes('you are eligible') ||

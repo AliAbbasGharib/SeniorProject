@@ -14,4 +14,4 @@ const ScreeningSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('DonationBlood', DonorSchema);
+module.exports = mongoose.model('DonationBlood', ScreeningSchema);
