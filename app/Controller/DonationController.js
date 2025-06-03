@@ -1,4 +1,4 @@
-const Donor = require('../models/Donor');
+const Donor = require("../../Models/DonationBlood");
 
 const evaluateEligibility = (responses) => {
     for (let r of responses) {
