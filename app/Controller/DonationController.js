@@ -1,32 +1,41 @@
 const Donor = require("../../Models/DonationBlood");
 
+
 const evaluateEligibility = (responses) => {
-    for (let r of responses) {
-        const q = r.question.toLowerCase();
-        const a = r.answer.toLowerCase();
-        if (
-            (q.includes("fever") || q.includes("medication") || q.includes("positive") || q.includes("pregnant"))
-            && a === "yes"
-        ) {
-            return false;
-        }
-    }
-    return true;
+    return !responses.some(r =>
+        r.answer.toLowerCase() === 'yes' &&
+        ['fever', 'medication', 'positive', 'pregnant'].some(keyword =>
+            r.question.toLowerCase().includes(keyword)
+        )
+    );
 };
 
 exports.submitScreening = async (req, res) => {
+    const userId = req.user?.id; // optional chaining
+    const { responses } = req.body;
+
+    if (!responses || !Array.isArray(responses)) {
+        return res.status(400).json({ error: 'Responses are required' });
+    }
+
     try {
-        const { name, age, gender, contact, bloodType, responses } = req.body;
         const eligible = evaluateEligibility(responses);
 
         const donor = new Donor({
-            name, age, gender, contact, bloodType, responses, eligible
+            userId,
+            responses,
+            eligible,
+            createdAt: new Date()
         });
 
         await donor.save();
 
-        res.status(201).json({ message: 'Screening submitted', eligible });
+        res.status(201).json({
+            message: 'Screening submitted successfully',
+            eligible
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Server Error', details: error.message });
+        console.error('Submit error:', error);
+        res.status(500).json({ error: 'Server error', details: error.message });
     }
 };
