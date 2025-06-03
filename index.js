@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require("mongoose");
 require('dotenv').config();
-mongoose.connect("mongodb+srv://aligharib560:ali12345@cluster0.untugvz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
         console.log("connected succufully");
     }).catch((err) => {
