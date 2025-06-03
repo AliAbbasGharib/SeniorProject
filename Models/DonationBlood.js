@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const schema = mongoose.Schema;
 
 const DonorSchema = new mongoose.Schema({
     user_id: {
