@@ -146,3 +146,43 @@ exports.deleteNotifications = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+
+exports.getUndeliveredNotifications = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const undeliveredNotifications = await Notification.find({
+            user_id: userId,
+            isDelivered: false
+        }).sort({ createdAt: -1 });
+
+        res.status(200).json({
+            message: "Undelivered notifications retrieved successfully",
+            notifications: undeliveredNotifications
+        });
+    } catch (error) {
+        console.error("Error fetching undelivered notifications:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+
+exports.markNotificationAsDelivered = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const notification = await Notification.findById(id);
+        if (!notification) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
+        notification.isDelivered = true;
+        await notification.save();
+
+        res.status(200).json({ message: 'Notification marked as delivered' });
+    } catch (error) {
+        console.error("Error updating delivery status:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};

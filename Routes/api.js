@@ -49,6 +49,9 @@ router.delete("/notification/:id", AuthMiddleware, NotificationController.delete
 router.put("/notification/update/:id", AuthMiddleware, NotificationController.updateNotifications);
 router.get("/unread-count", AuthMiddleware, NotificationController.getUnreadCount);
 router.post("/mark-read", AuthMiddleware, NotificationController.markAllAsRead);
+router.get("/undelivered",AuthMiddleware,NotificationController.getUndeliveredNotifications);
+router.put('/delivered/:id', AuthMiddleware, NotificationController.markNotificationAsDelivered);
+
 
 router.post("/ai-chat", AuthMiddleware, DonationController.handleAIChat);
 

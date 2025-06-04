@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-    
+
 const NotificationSchema = new mongoose.Schema({
     user_id:
     {
@@ -21,6 +21,10 @@ const NotificationSchema = new mongoose.Schema({
         required: true
     },
     isRead: {
+        type: Boolean,
+        default: false
+    },
+    isDelivered: {   
         type: Boolean,
         default: false
     },
