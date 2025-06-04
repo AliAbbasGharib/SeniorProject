@@ -57,7 +57,7 @@ router.get("/undelivered",AuthMiddleware,NotificationController.getUndeliveredNo
 router.put('/delivered-all', AuthMiddleware, NotificationController.markAllAsDelivered);
 
 // Contact US 
-router.post("/send-contact",)
+router.post("/send-contact",ContactContoller.submitContact);
 
 router.post("/ai-chat", AuthMiddleware, DonationController.handleAIChat);
 

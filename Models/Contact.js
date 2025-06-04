@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+    
 const ContactSchema = new mongoose.Schema({
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     name: { type: String, required: function () { return !this.user_id } },
