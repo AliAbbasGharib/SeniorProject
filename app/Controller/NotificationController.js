@@ -168,21 +168,19 @@ exports.getUndeliveredNotifications = async (req, res) => {
 };
 
 
-exports.markNotificationAsDelivered = async (req, res) => {
+exports.markAllAsDelivered = async (req, res) => {
     try {
-        const { id } = req.params;
+        const userId = req.user.id;
 
-        const notification = await Notification.findById(id);
-        if (!notification) {
-            return res.status(404).json({ message: 'Notification not found' });
-        }
+        const result = await Notification.updateMany(
+            { user_id: userId, isDelivered: false },
+            { $set: { isDelivered: true } }
+        );
 
-        notification.isDelivered = true;
-        await notification.save();
-
-        res.status(200).json({ message: 'Notification marked as delivered' });
+        res.status(200).json({ message: `${result.modifiedCount} notifications marked as delivered` });
     } catch (error) {
         console.error("Error updating delivery status:", error);
         res.status(500).json({ message: "Server error" });
     }
 };
+
