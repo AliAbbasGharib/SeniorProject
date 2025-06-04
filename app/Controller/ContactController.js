@@ -16,14 +16,14 @@ exports.submitContact = async (req, res) => {
             return res.status(400).json({ message: "Name and phone number are required for guest users" });
         }
 
-        await Contact.create({
+      const contact = await Contact.create({
             user_id: userId,
             name,
             phone_number,
             message
         });
 
-        res.status(200).json({ message: "Message received successfully" });
+        res.status(200).json({ contact });
 
     } catch (error) {
         console.error("Contact submission error:", error);
