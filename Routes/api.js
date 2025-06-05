@@ -3,6 +3,7 @@ const router = express.Router();
 const AuthController = require('../app/Controller/AuthController');
 const UserController = require("../app/Controller/UserController");
 const AuthMiddleware = require('../app/Middleware/Authenticate');
+const RateLimiter = require('../app/Middleware/RateLimiter');
 const CheckAdmin = require('../app/Middleware/CheckAdmin');
 const CheckAdminOrHospital = require('../app/Middleware/CheckAdminOrHospital');
 const AuthRequestBlood = require('../app/Middleware/AuthRequestBlood');
@@ -53,11 +54,15 @@ router.delete("/notification/:id", AuthMiddleware, NotificationController.delete
 router.put("/notification/update/:id", AuthMiddleware, NotificationController.updateNotifications);
 router.get("/unread-count", AuthMiddleware, NotificationController.getUnreadCount);
 router.post("/mark-read", AuthMiddleware, NotificationController.markAllAsRead);
-router.get("/undelivered",AuthMiddleware,NotificationController.getUndeliveredNotifications);
+router.get("/undelivered", AuthMiddleware, NotificationController.getUndeliveredNotifications);
 router.put('/delivered-all', AuthMiddleware, NotificationController.markAllAsDelivered);
 
 // Contact US 
-router.post("/send-contact",ContactContoller.submitContact);
+router.post("/send-contact", RateLimiter, ContactContoller.submitContact);
+router.get('/messages', AuthMiddleware, CheckAdminOrHospital, ContactContoller.getMessage);
+router.delete('/messages/:id', AuthMiddleware, CheckAdminOrHospital, ContactContoller.deleteMessage);
+router.patch('/messages/:id/status', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
+
 
 router.post("/ai-chat", AuthMiddleware, DonationController.handleAIChat);
 
