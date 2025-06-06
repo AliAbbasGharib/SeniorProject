@@ -1,5 +1,3 @@
-const { Expo } = require('expo-server-sdk');
-const expo = new Expo();
 const Notification = require("../../Models/Notification");
 const User = require("../../Models/Users");
 
@@ -13,43 +11,17 @@ exports.sendNotificationToAllUsers = async (req, res) => {
         }
 
         // Get all active users with Expo tokens
-        const users = await User.find({ status: "active", expoPushToken: { $ne: null } });
+        const users = await User.find({ status: "active" });
 
         // Create notification documents
         const notifications = users.map(user => ({
             user_id: user._id,
             title,
             body,
+            data: { type: 'general' },
         }));
 
         await Notification.insertMany(notifications);
-
-        // Create Expo push messages
-        const messages = [];
-        for (let user of users) {
-            if (!Expo.isExpoPushToken(user.expoPushToken)) {
-                console.warn(`Invalid Expo token for user ${user._id}`);
-                continue;
-            }
-
-            messages.push({
-                to: user.expoPushToken,
-                sound: 'default',
-                title: title,
-                body: body,
-                data: { type: 'general' },
-            });
-        }
-
-        const chunks = expo.chunkPushNotifications(messages);
-        for (let chunk of chunks) {
-            try {
-                const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-                console.log("Expo push tickets:", ticketChunk);
-            } catch (error) {
-                console.error("Push error:", error);
-            }
-        }
 
         res.status(200).json({ message: `Notifications stored and push sent to ${users.length} users.` });
     } catch (error) {
@@ -74,9 +46,14 @@ exports.getSpecificNotification = async (req, res) => {
 };
 exports.getMyNotifications = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user.id;  // Ensure req.user is set by Auth middleware
 
-        const notifications = await Notification.find({ user_id: userId }).sort({ createdAt: -1 });
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized: User ID missing" });
+        }
+
+        const notifications = await Notification.find({ user_id: userId })
+            .sort({ createdAt: -1 });
 
         res.status(200).json({
             message: "Notifications retrieved successfully",
@@ -87,6 +64,7 @@ exports.getMyNotifications = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 
 exports.getUnreadCount = async (req, res) => {
     try {

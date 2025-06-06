@@ -1,5 +1,3 @@
-const { Expo } = require('expo-server-sdk');
-const expo = new Expo();
 const RequestBlood = require('../../Models/RequestBlood');
 const User = require("../../Models/Users");
 const Notification = require("../../Models/Notification")
@@ -122,67 +120,48 @@ exports.addRequest = async (req, res) => {
 
     await request.save();
 
-
     try {
-      const pushMessages = [];
-
-      nearbyUsers.forEach(user => {
-        if (user.expoPushToken && Expo.isExpoPushToken(user.expoPushToken)) {
-          pushMessages.push({
-            to: user.expoPushToken,
-            sound: 'default',
-            title: 'Urgent Blood Request Nearby',
-            body: `Urgent blood request near you for blood type ${request.blood_type}. Please help!`,
-            data: { request_id: request._id },
-            type: "request_blood"
-          });
-        }
+      const nearbyUsers = await User.find({
+        _id: { $ne: user_id },
+        location: {
+          $nearSphere: {
+            $geometry: location,
+            $maxDistance: 15000,
+          },
+        },
+        status: "active",
       });
-
-      // Send push notifications in batches
-      const chunks = expo.chunkPushNotifications(pushMessages);
-      const tickets = [];
-
-      for (const chunk of chunks) {
-        try {
-          const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-          tickets.push(...ticketChunk);
-        } catch (error) {
-          console.error('Push notification error:', error);
-        }
-      }
 
       const notifications = nearbyUsers.map(user => ({
         user_id: user._id,
         title: "Urgent Blood Request Nearby",
-        body: `Urgent blood request near you for blood type ${request.blood_type}. Please help!`,
+        body:` Urgent blood request near you for blood type ${ request.blood_type }.Please help!`,
         request_id: request._id,
-        type: "blood_request",
       }));
 
-      await Notification.insertMany(notifications);
+    await Notification.insertMany(notifications);
 
-      res.status(200).json({
-        status: 200,
-        message: 'Request Created and notifications sent',
-        request,
-        notifiedUsersCount: nearbyUsers.length,
-      });
-    } catch (notificationError) {
-      console.warn("Notifications failed:", notificationError.message);
-      // Still return success for the request
-      res.status(200).json({
-        status: 200,
-        message: 'Request Created but notifications failed',
-        request,
-        notifiedUsersCount: 0,
-      });
-    }
-
-  } catch (err) {
-    console.error('Add request error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(200).json({
+      status: 200,
+      message: 'Request Created and notifications sent',
+      request,
+      notifiedUsersCount: nearbyUsers.length,
+    });
+  } catch (notificationError) {
+    console.warn("Notifications failed:", notificationError.message);
+    // Still return success for the request
+    res.status(200).json({
+      status: 200,
+      message: 'Request Created but notifications failed',
+      request,
+      notifiedUsersCount: 0,
+    });
   }
+
+} catch (err) {
+  console.error('Add request error:', err);
+  res.status(500).json({ message: 'Server error', error: err.message });
+}
 };
 
 

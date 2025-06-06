@@ -53,11 +53,6 @@ const userSchema = new schema({
         enum: ["available", "unavailable"],
         default: 'available',
     },
-    expoPushToken: {
-        type: String,
-        default: null
-    },
-
     location: {
         type: {
             type: String,
