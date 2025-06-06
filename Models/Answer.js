@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const schema = mongoose.Schema;
 const answerSchema = new mongoose.Schema({
     user_id: {
         type: schema.Types.ObjectId,
