@@ -65,7 +65,7 @@ router.delete('/messages/:id', AuthMiddleware, CheckAdminOrHospital, ContactCont
 router.patch('/messages/:id/status', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
 
 
-let sessions = {}; // sessionId -> { currentQuestion, answers }
+let sessions = {}; 
 
 router.post('/start', (req, res) => {
     const sessionId = Date.now().toString();
