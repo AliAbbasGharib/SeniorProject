@@ -64,39 +64,7 @@ router.get('/messages', AuthMiddleware, CheckAdminOrHospital, ContactContoller.g
 router.delete('/messages/:id', AuthMiddleware, CheckAdminOrHospital, ContactContoller.deleteMessage);
 router.put('/messages/:id/status', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
 
-
-let sessions = {}; 
-
-router.post('/start', (req, res) => {
-    const sessionId = Date.now().toString();
-    sessions[sessionId] = { currentQuestion: 0, answers: [] };
-
-    res.json({
-        sessionId,
-        question: healthQuestions[0],
-    });
-});
-
-router.post('/answer', async (req, res) => {
-    const { sessionId, answer } = req.body;
-    const session = sessions[sessionId];
-
-    if (!session) {
-        return res.status(400).json({ error: 'Invalid session ID' });
-    }
-
-    session.answers.push(answer);
-    session.currentQuestion++;
-
-    if (session.currentQuestion < healthQuestions.length) {
-        res.json({
-            question: healthQuestions[session.currentQuestion],
-        });
-    } else {
-        const result = await DonationController.checkEligibility(session.answers);
-        delete sessions[sessionId];
-        res.json({ result });
-    }
-});
+router.post('/submit-answers', AuthMiddleware, DonationController.submitAnswers);
+router.get("/get-questions",AuthMiddleware, DonationController.getQuestions);
 
 module.exports = router;

@@ -1,51 +1,121 @@
-const OpenAI = require('openai');
-require('dotenv').config();
+const Question = require('../../Models/Answer');
+const Answer = require('../../Models/Question');
 
-if (!process.env.OPENAI_API_KEY) {
-    throw new Error('Missing OpenAI API key in environment variables');
-}
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
-
-const healthQuestions = [
-    "Do you have any chronic diseases (e.g. diabetes, heart disease)?",
-    "Have you had a fever or cold in the past week?",
-    "Are you currently taking any medication?",
-    "Have you donated blood in the last 3 months?",
-    "Do you weigh more than 50kg?",
-    "Are you between the ages of 18 and 65?",
+const questions = [
+    {
+        text: "Are you feeling healthy and well today?",
+        type: "yesno",
+        order: 1,
+    },
+    {
+        text: "Have you donated blood in the last 3 months?",
+        type: "yesno",
+        order: 2,
+    },
+    {
+        text: "Are you pregnant or have you been pregnant in the last 6 months?",
+        type: "yesno",
+        order: 3,
+    },
+    {
+        text: "Do you have any chronic medical conditions (e.g., diabetes, heart disease)?",
+        type: "yesno",
+        order: 4,
+    },
+    {
+        text: "Have you taken any antibiotics in the last 7 days?",
+        type: "yesno",
+        order: 5,
+    },
+    {
+        text: "Have you undergone any major surgery in the past 6 months?",
+        type: "yesno",
+        order: 6,
+    },
+    {
+        text: "Do you weigh more than 50 kg (110 lbs)?",
+        type: "yesno",
+        order: 7,
+    },
+    {
+        text: "Have you traveled outside the country in the last 6 months?",
+        type: "yesno",
+        order: 8,
+    },
+    {
+        text: "Have you ever been diagnosed with cancer?",
+        type: "yesno",
+        order: 9,
+    },
+    {
+        text: "Have you received a tattoo or body piercing in the last 6 months?",
+        type: "yesno",
+        order: 10,
+    }
 ];
 
-async function checkEligibility(answers) {
-    if (answers.length !== healthQuestions.length) {
-        throw new Error('Mismatch between number of answers and questions');
-    }
-
-    const prompt = `
-You are a medical screening assistant for blood donation.
-
-Here are the donor's answers:
-${answers.map((ans, i) => `${i + 1}. ${healthQuestions[i]} - ${ans}`).join('\n')}
-
-Based on WHO guidelines, is this person eligible to donate blood? Reply with either:
-- "Eligible"
-- "Not Eligible"
-And explain briefly why.
-`;
-
+// Fetch all questions sorted by order
+exports.getQuestions = async (req, res) => {
     try {
-        const response = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo',
-            messages: [{ role: "user", content: prompt }],
-        });
-
-        return response.choices[0].message.content.trim();
+        const questions = await Question.find().sort({ order: 1 });
+        res.json(questions);
     } catch (error) {
-        console.error("OpenAI API error:", error);
-        return "Error evaluating eligibility.";
+        res.status(500).json({ message: 'Failed to get questions', error });
     }
+};
+
+// Insert a new question
+exports.addQuestion = async (req, res) => {
+    try {
+        const { text, type, order } = req.body;
+        const question = new Question({ text, type, options, order });
+        await question.save();
+        res.status(201).json(question);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to add question', error });
+    }
+};
+
+// Eligibility check logic
+function checkEligibility(answers) {
+    // List of question orders that require "no" for eligibility
+    const disqualifyingYes = ['2', '3', '4', '5', '6', '8', '9', '10'];
+
+    // Question 1 (feeling well) must be "yes"
+    if (answers.get('1') !== 'yes') return false;
+
+    // Question 7 (weight > 50kg) must be "yes"
+    if (answers.get('7') !== 'yes') return false;
+
+    // All disqualifying questions must be "no"
+    for (let q of disqualifyingYes) {
+        if (answers.get(q) === 'yes') return false;
+    }
+
+    return true;
 }
 
-module.exports = { healthQuestions, checkEligibility };
+
+// Submit answers and check eligibility
+exports.submitAnswers = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const { answers } = req.body;
+        if (!answers) return res.status(400).json({ message: 'Answers required' });
+
+        const answersMap = new Map(Object.entries(answers));
+
+        const eligible = checkEligibility(answersMap);
+
+        const answerDoc = new Answer({ userId, answers: answersMap, eligible });
+        await answerDoc.save();
+
+        res.status(201).json({ eligible });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to submit answers', error });
+    }
+};
+
