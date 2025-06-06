@@ -64,7 +64,8 @@ router.get('/messages', AuthMiddleware, CheckAdminOrHospital, ContactContoller.g
 router.delete('/messages/:id', AuthMiddleware, CheckAdminOrHospital, ContactContoller.deleteMessage);
 router.put('/messages/:id/status', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
 
-router.post('/submit-answers', AuthMiddleware, DonationController.submitAnswers);
+router.post('/add-questions', AuthMiddleware, DonationController.addQuestion);
 router.get("/get-questions",AuthMiddleware, DonationController.getQuestions);
+router.post('/submit-answers', AuthMiddleware, DonationController.submitAnswers);
 
 module.exports = router;
