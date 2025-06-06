@@ -1,4 +1,5 @@
-// controllers/NotificationController.js
+const { Expo } = require('expo-server-sdk');
+const expo = new Expo();
 const Notification = require("../../Models/Notification");
 const User = require("../../Models/Users");
 
@@ -11,22 +12,46 @@ exports.sendNotificationToAllUsers = async (req, res) => {
             return res.status(400).json({ message: "Title and body are required" });
         }
 
-        // Get all active users
-        const users = await User.find({ status: "active" });
+        // Get all active users with Expo tokens
+        const users = await User.find({ status: "active", expoPushToken: { $ne: null } });
 
-        // Prepare notification documents for bulk insert
+        // Create notification documents
         const notifications = users.map(user => ({
             user_id: user._id,
             title,
             body,
         }));
 
-        // Insert all notifications at once
         await Notification.insertMany(notifications);
 
-        // Optionally: You can also trigger push notifications here (if you have device tokens)
+        // Create Expo push messages
+        const messages = [];
+        for (let user of users) {
+            if (!Expo.isExpoPushToken(user.expoPushToken)) {
+                console.warn(`Invalid Expo token for user ${user._id}`);
+                continue;
+            }
 
-        res.status(200).json({ message: `Notifications sent to ${users.length} users.` });
+            messages.push({
+                to: user.expoPushToken,
+                sound: 'default',
+                title: title,
+                body: body,
+                data: { type: 'general' },
+            });
+        }
+
+        const chunks = expo.chunkPushNotifications(messages);
+        for (let chunk of chunks) {
+            try {
+                const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+                console.log("Expo push tickets:", ticketChunk);
+            } catch (error) {
+                console.error("Push error:", error);
+            }
+        }
+
+        res.status(200).json({ message: `Notifications stored and push sent to ${users.length} users.` });
     } catch (error) {
         console.error("Error sending notifications:", error);
         res.status(500).json({ message: "Server error" });

@@ -1,3 +1,5 @@
+const { Expo } = require('expo-server-sdk');
+const expo = new Expo();
 const RequestBlood = require('../../Models/RequestBlood');
 const User = require("../../Models/Users");
 const Notification = require("../../Models/Notification")
@@ -122,22 +124,40 @@ exports.addRequest = async (req, res) => {
 
 
     try {
-      const nearbyUsers = await User.find({
-        _id: { $ne: user_id },
-        location: {
-          $nearSphere: {
-            $geometry: location,
-            $maxDistance: 15000,
-          },
-        },
-        status: "active",
+      const pushMessages = [];
+
+      nearbyUsers.forEach(user => {
+        if (user.expoPushToken && Expo.isExpoPushToken(user.expoPushToken)) {
+          pushMessages.push({
+            to: user.expoPushToken,
+            sound: 'default',
+            title: 'Urgent Blood Request Nearby',
+            body: `Urgent blood request near you for blood type ${request.blood_type}. Please help!`,
+            data: { request_id: request._id },
+            type: "request_blood"
+          });
+        }
       });
+
+      // Send push notifications in batches
+      const chunks = expo.chunkPushNotifications(pushMessages);
+      const tickets = [];
+
+      for (const chunk of chunks) {
+        try {
+          const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+          tickets.push(...ticketChunk);
+        } catch (error) {
+          console.error('Push notification error:', error);
+        }
+      }
 
       const notifications = nearbyUsers.map(user => ({
         user_id: user._id,
         title: "Urgent Blood Request Nearby",
         body: `Urgent blood request near you for blood type ${request.blood_type}. Please help!`,
         request_id: request._id,
+        type: "blood_request",
       }));
 
       await Notification.insertMany(notifications);
@@ -279,7 +299,7 @@ exports.getMyActivityRequests = async (req, res) => {
 
 exports.getMatchingRequests = async (req, res) => {
   try {
-    const { blood_type} = req.user;
+    const { blood_type } = req.user;
 
     if (!blood_type) {
       return res.status(400).json({ message: 'User blood type or location missing' });

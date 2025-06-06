@@ -59,7 +59,7 @@ const questions = [
 exports.getQuestions = async (req, res) => {
     try {
         const questions = await Question.find().sort({ order: 1 });
-        res.json(questions);
+        res.json({questions});
     } catch (error) {
         res.status(500).json({ message: 'Failed to get questions', error });
     }
@@ -71,7 +71,7 @@ exports.addQuestion = async (req, res) => {
         const { text, type, order } = req.body;
         const question = new Question({  text, type, order });
         await question.save();
-        res.status(201).json(question);
+        res.status(201).json({question});
     } catch (error) {
         res.status(500).json({ message: 'Failed to add question', error });
     }
