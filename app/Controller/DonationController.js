@@ -1,10 +1,14 @@
-const { OpenAI } = require('openai');
+const OpenAI = require('openai');
 require('dotenv').config();
+
+if (!process.env.OPENAI_API_KEY) {
+    throw new Error('Missing OpenAI API key in environment variables');
+}
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-console.log(process.env.OPENAI_API_KEY);
+
 const healthQuestions = [
     "Do you have any chronic diseases (e.g. diabetes, heart disease)?",
     "Have you had a fever or cold in the past week?",
@@ -15,6 +19,10 @@ const healthQuestions = [
 ];
 
 async function checkEligibility(answers) {
+    if (answers.length !== healthQuestions.length) {
+        throw new Error('Mismatch between number of answers and questions');
+    }
+
     const prompt = `
 You are a medical screening assistant for blood donation.
 
@@ -27,12 +35,17 @@ Based on WHO guidelines, is this person eligible to donate blood? Reply with eit
 And explain briefly why.
 `;
 
-    const response = await openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [{ role: "user", content: prompt }],
-    });
+    try {
+        const response = await openai.chat.completions.create({
+            model: 'gpt-4',
+            messages: [{ role: "user", content: prompt }],
+        });
 
-    return response.choices[0].message.content.trim();
+        return response.choices[0].message.content.trim();
+    } catch (error) {
+        console.error("OpenAI API error:", error);
+        return "Error evaluating eligibility.";
+    }
 }
 
 module.exports = { healthQuestions, checkEligibility };

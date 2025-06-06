@@ -62,7 +62,7 @@ router.put('/delivered-all', AuthMiddleware, NotificationController.markAllAsDel
 router.post("/send-contact", RateLimiter, ContactContoller.submitContact);
 router.get('/messages', AuthMiddleware, CheckAdminOrHospital, ContactContoller.getMessage);
 router.delete('/messages/:id', AuthMiddleware, CheckAdminOrHospital, ContactContoller.deleteMessage);
-router.patch('/messages/:id/status', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
+router.put('/messages/:id/status', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
 
 
 let sessions = {}; 
