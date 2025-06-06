@@ -4,7 +4,7 @@ require('dotenv').config();
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-
+console.log(process.env.OPENAI_API_KEY);
 const healthQuestions = [
     "Do you have any chronic diseases (e.g. diabetes, heart disease)?",
     "Have you had a fever or cold in the past week?",
