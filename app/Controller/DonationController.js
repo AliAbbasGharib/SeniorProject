@@ -69,8 +69,8 @@ exports.getQuestions = async (req, res) => {
 exports.addQuestion = async (req, res) => {
     try {
         const { text, type, order } = req.body;
-        const question = new Question({ text, type, options, order });
-        await question.save();
+        const question = new Question({ questions });
+        await questions.save();
         res.status(201).json(question);
     } catch (error) {
         res.status(500).json({ message: 'Failed to add question', error });
