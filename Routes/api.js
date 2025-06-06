@@ -93,11 +93,10 @@ router.post('/answer', async (req, res) => {
             question: healthQuestions[session.currentQuestion],
         });
     } else {
-        const result = await checkEligibility(session.answers);
+        const result = await DonationController.checkEligibility(session.answers);
         delete sessions[sessionId];
         res.json({ result });
     }
 });
-
 
 module.exports = router;
