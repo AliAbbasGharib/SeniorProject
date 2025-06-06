@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require("mongoose");
+const bodyParser = require('body-parser');
 require('dotenv').config();
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
@@ -13,7 +14,7 @@ mongoose.connect(process.env.MONGODB_URI)
 const authApi = require("./Routes/api");
 const app = express();
 
-app.use(express.json());
+app.use(express.json(), bodyParser.json());
 
 app.use(cors({
     origin: ['https://seniorproject-1-3rbo.onrender.com', 'http://localhost:3000',

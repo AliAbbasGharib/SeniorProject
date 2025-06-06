@@ -5,7 +5,7 @@ const ContactSchema = new mongoose.Schema({
     name: { type: String, required: function () { return !this.user_id } },
     phone_number: { type: String, required: function () { return !this.user_id } },
     message: { type: String, required: true },
-    status: { type: String, enum: ['unread', 'read', 'responded'], default: 'unread' },
+    status: { type: String, enum: ['unread', 'read'], default: 'unread' },
     createdAt: { type: Date, default: Date.now }
 });
 

@@ -33,7 +33,7 @@ exports.submitContact = async (req, res) => {
 
 exports.getMessage = async (req, res) => {
     try {
-        const messages = await Contact.find();
+        const messages = await Contact.find().sort({ createdAt: -1 });
         res.status(200).json({
             messages: messages
         });
@@ -57,7 +57,7 @@ exports.deleteMessage = async (req, res) => {
 exports.updateMessageStatus = async (req, res) => {
     try {
         const { status } = req.body;
-        const validStatuses = ["unread", "read", "responded"];
+        const validStatuses = ["unread", "read"];
 
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: "Invalid status value" });

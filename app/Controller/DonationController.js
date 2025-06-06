@@ -1,67 +1,38 @@
 const { OpenAI } = require('openai');
-const Screening = require('../../Models/DonationBlood');
+require('dotenv').config();
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
 
-// POST /screening/ai-chat
-exports.handleAIChat = async (req, res) => {
-    const user_id = req.user._id; // from auth middleware
-    const { screeningId, message } = req.body;
+const healthQuestions = [
+    "Do you have any chronic diseases (e.g. diabetes, heart disease)?",
+    "Have you had a fever or cold in the past week?",
+    "Are you currently taking any medication?",
+    "Have you donated blood in the last 3 months?",
+    "Do you weigh more than 50kg?",
+    "Are you between the ages of 18 and 65?",
+];
 
-    try {
-        let screening;
+async function checkEligibility(answers) {
+    const prompt = `
+You are a medical screening assistant for blood donation.
 
-        // Start new session if no ID
-        if (!screeningId) {
-            screening = new Screening({
-                user_id,
-                chatHistory: [{ role: 'user', content: message }]
-            });
-        } else {
-            screening = await Screening.findById(screeningId);
-            if (!screening || screening.completed) {
-                return res.status(400).json({ error: 'Invalid or completed screening session' });
-            }
-            screening.chatHistory.push({ role: '2001', content: message });
-        }
+Here are the donor's answers:
+${answers.map((ans, i) => `${i + 1}. ${healthQuestions[i]} - ${ans}`).join('\n')}
 
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4',
-            messages: [
-                {
-                    role: 'system',
-                    content: `You are a blood donation health screening assistant. Ask the donor one health or public eligibility question at a time. End with eligibility result after all necessary questions.`
-                },
-                ...screening.chatHistory
-            ]
-        });
+Based on WHO guidelines, is this person eligible to donate blood? Reply with either:
+- "Eligible"
+- "Not Eligible"
+And explain briefly why.
+`;
 
-        const aiReply = response.choices[0].message.content;
+    const response = await openai.chat.completions.create({
+        model: 'gpt-4',
+        messages: [{ role: "user", content: prompt }],
+    });
 
-        // Save AI response
-        screening.chatHistory.push({ role: 'assistant', content: aiReply });
+    return response.choices[0].message.content.trim();
+}
 
-        // Check if AI gave a final verdict
-        const lowerReply = aiReply.toLowerCase();
-        if (
-            lowerReply.includes('you are eligible') ||
-            lowerReply.includes('you are not eligible') ||
-            lowerReply.includes('not recommended to donate')
-        ) {
-            screening.completed = true;
-            screening.eligible = lowerReply.includes('eligible') && !lowerReply.includes('not');
-        }
-
-        await screening.save();
-
-        res.json({
-            screeningId: screening._id,
-            aiReply,
-            completed: screening.completed,
-            eligible: screening.eligible ?? null
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'AI error', details: err.message });
-    }
-};
+module.exports = { healthQuestions, checkEligibility };

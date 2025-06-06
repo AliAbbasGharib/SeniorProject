@@ -11,6 +11,7 @@ const RequestBloodController = require('../app/Controller/RequestBloodController
 const NotificationController = require('../app/Controller/NotificationController');
 const DonationController = require("../app/Controller/DonationController");
 const ContactContoller = require("../app/Controller/ContactController");
+const { healthQuestions, checkEligibility } = require('../app/Controller/DonationController');
 // public Route
 // Auth routes
 router.post("/register", AuthController.register);
@@ -64,7 +65,39 @@ router.delete('/messages/:id', AuthMiddleware, CheckAdminOrHospital, ContactCont
 router.patch('/messages/:id/status', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
 
 
-router.post("/ai-chat", AuthMiddleware, DonationController.handleAIChat);
+let sessions = {}; // sessionId -> { currentQuestion, answers }
+
+router.post('/start', (req, res) => {
+    const sessionId = Date.now().toString();
+    sessions[sessionId] = { currentQuestion: 0, answers: [] };
+
+    res.json({
+        sessionId,
+        question: healthQuestions[0],
+    });
+});
+
+router.post('/answer', async (req, res) => {
+    const { sessionId, answer } = req.body;
+    const session = sessions[sessionId];
+
+    if (!session) {
+        return res.status(400).json({ error: 'Invalid session ID' });
+    }
+
+    session.answers.push(answer);
+    session.currentQuestion++;
+
+    if (session.currentQuestion < healthQuestions.length) {
+        res.json({
+            question: healthQuestions[session.currentQuestion],
+        });
+    } else {
+        const result = await checkEligibility(session.answers);
+        delete sessions[sessionId];
+        res.json({ result });
+    }
+});
 
 
 
