@@ -73,9 +73,11 @@ exports.addQuestion = async (req, res) => {
         await question.save();
         res.status(201).json({ question });
     } catch (error) {
+        console.error("Add question error:", error); // 🔍 Add this
         res.status(500).json({ message: 'Failed to add question', error });
     }
 };
+
 
 // Eligibility check logic
 function checkEligibility(answers) {
