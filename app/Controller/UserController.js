@@ -21,26 +21,30 @@ exports.userAuth = async (req, res) => {
     res.status(200).json(req.user); // req.user is set in auth middleware
 };
 
-exports.getLimitedUsers = async (req, res) => {
+exports.getPaginatedUsers = async (req, res) => {
     try {
-        const limit = parseInt(req.params.number);
-        if (isNaN(limit) || limit <= 0) {
-            return res.status(400).json({ message: 'Invalid limit number' });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        if (limit <= 0 || page <= 0) {
+            return res.status(400).json({ message: 'Invalid page or limit value' });
         }
-        const users = await User.find().limit(limit);
-        const count = await User.countDocuments();
-        if (!users || users.length === 0) {
-            return res.status(404).json({ message: 'No User found' });
-        }
+
+        const skip = (page - 1) * limit;
+
+        const users = await User.find().skip(skip).limit(limit);
+        const total = await User.countDocuments();
 
         res.status(200).json({
             status: 200,
-            message: `Returning ${users.length} user(s)`,
-            totalUsers: count,
-            users: users,
+            message: `Page ${page} of users`,
+            users,
+            totalUsers: total,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page
         });
     } catch (err) {
-        console.error('Get limited users error:', err);
+        console.error('Get paginated users error:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
