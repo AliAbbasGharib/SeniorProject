@@ -1,59 +1,6 @@
 const Question = require('../../Models/Question');
 const Answer = require('../../Models/Answer');
-
-
-// const questions = [
-//     {
-//         text: "Are you feeling healthy and well today?",
-//         type: "yesno",
-//         order: 1,
-//     },
-//     {
-//         text: "Have you donated blood in the last 3 months?",
-//         type: "yesno",
-//         order: 2,
-//     },
-//     {
-//         text: "Are you pregnant or have you been pregnant in the last 6 months?",
-//         type: "yesno",
-//         order: 3,
-//     },
-//     {
-//         text: "Do you have any chronic medical conditions (e.g., diabetes, heart disease)?",
-//         type: "yesno",
-//         order: 4,
-//     },
-//     {
-//         text: "Have you taken any antibiotics in the last 7 days?",
-//         type: "yesno",
-//         order: 5,
-//     },
-//     {
-//         text: "Have you undergone any major surgery in the past 6 months?",
-//         type: "yesno",
-//         order: 6,
-//     },
-//     {
-//         text: "Do you weigh more than 50 kg (110 lbs)?",
-//         type: "yesno",
-//         order: 7,
-//     },
-//     {
-//         text: "Have you traveled outside the country in the last 6 months?",
-//         type: "yesno",
-//         order: 8,
-//     },
-//     {
-//         text: "Have you ever been diagnosed with cancer?",
-//         type: "yesno",
-//         order: 9,
-//     },
-//     {
-//         text: "Have you received a tattoo or body piercing in the last 6 months?",
-//         type: "yesno",
-//         order: 10,
-//     }
-// ];
+const User = require('../../Models/Users');
 
 // Fetch all questions sorted by order
 exports.getQuestions = async (req, res) => {
@@ -134,6 +81,12 @@ exports.submitAnswers = async (req, res) => {
         // Save answers
         const answerDoc = new Answer({ user_id: userId, answers: answersMap, eligible });
         await answerDoc.save();
+
+        if (!eligible) {
+            await User.findByIdAndUpdate(userId, {
+                donation_availability: 'unavailable',
+            });
+        }
 
         res.status(201).json({ eligible });
     } catch (error) {
