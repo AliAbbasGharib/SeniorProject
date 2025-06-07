@@ -25,7 +25,7 @@ router.get("/user", AuthMiddleware, UserController.userAuth);
 // Users
 router.get("/users", AuthMiddleware, CheckAdminOrHospital, UserController.getPaginatedUsers);
 router.get("/user/:id", AuthMiddleware, CheckAdminOrHospital, UserController.getSpecificUser);
-router.get("/users/limit/:number", AuthMiddleware, CheckAdminOrHospital, UserController.getLimitedUsers);
+// router.get("/users/limit/:number", AuthMiddleware, CheckAdminOrHospital, UserController.getLimitedUsers);
 router.post("/user/add", AuthMiddleware, CheckAdminOrHospital, UserController.addUser);
 router.put("/user/update/:id", AuthMiddleware, CheckAdminOrHospital, UserController.updateUser);
 router.delete("/user/:id", AuthMiddleware, CheckAdminOrHospital, UserController.deleteUser);
