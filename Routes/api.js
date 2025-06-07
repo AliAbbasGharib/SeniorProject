@@ -62,7 +62,7 @@ router.put('/delivered-all', AuthMiddleware, NotificationController.markAllAsDel
 router.post("/send-contact", RateLimiter, ContactContoller.submitContact);
 router.get('/messages', AuthMiddleware, CheckAdminOrHospital, ContactContoller.getMessage);
 router.delete('/messages/:id', AuthMiddleware, CheckAdminOrHospital, ContactContoller.deleteMessage);
-router.put('/messages/:id/status', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
+router.put('/messages/status/:id', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
 
 router.post('/add-questions', AuthMiddleware, DonationController.addQuestion);
 router.get("/get-questions",AuthMiddleware, DonationController.getQuestions);
