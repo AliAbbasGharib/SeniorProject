@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const submissionSchema = new mongoose.Schema({
+const answerSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -8,22 +8,14 @@ const submissionSchema = new mongoose.Schema({
     },
     answers: [
         {
-            questionId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Question',
-                required: true,
-            },
-            answerText: { type: String, required: true },
+            questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true },
+            answer: { type: String, required: true }
         }
     ],
     eligible: {
         type: Boolean,
         required: true,
-    },
-    submittedAt: {
-        type: Date,
-        default: Date.now,
     }
 });
 
-module.exports = mongoose.model('Submission', submissionSchema);
+module.exports = mongoose.model('Answer', answerSchema);

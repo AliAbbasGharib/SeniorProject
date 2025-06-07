@@ -2,58 +2,58 @@ const Question = require('../../Models/Question');
 const Answer = require('../../Models/Answer');
 
 
-const questions = [
-    {
-        text: "Are you feeling healthy and well today?",
-        type: "yesno",
-        order: 1,
-    },
-    {
-        text: "Have you donated blood in the last 3 months?",
-        type: "yesno",
-        order: 2,
-    },
-    {
-        text: "Are you pregnant or have you been pregnant in the last 6 months?",
-        type: "yesno",
-        order: 3,
-    },
-    {
-        text: "Do you have any chronic medical conditions (e.g., diabetes, heart disease)?",
-        type: "yesno",
-        order: 4,
-    },
-    {
-        text: "Have you taken any antibiotics in the last 7 days?",
-        type: "yesno",
-        order: 5,
-    },
-    {
-        text: "Have you undergone any major surgery in the past 6 months?",
-        type: "yesno",
-        order: 6,
-    },
-    {
-        text: "Do you weigh more than 50 kg (110 lbs)?",
-        type: "yesno",
-        order: 7,
-    },
-    {
-        text: "Have you traveled outside the country in the last 6 months?",
-        type: "yesno",
-        order: 8,
-    },
-    {
-        text: "Have you ever been diagnosed with cancer?",
-        type: "yesno",
-        order: 9,
-    },
-    {
-        text: "Have you received a tattoo or body piercing in the last 6 months?",
-        type: "yesno",
-        order: 10,
-    }
-];
+// const questions = [
+//     {
+//         text: "Are you feeling healthy and well today?",
+//         type: "yesno",
+//         order: 1,
+//     },
+//     {
+//         text: "Have you donated blood in the last 3 months?",
+//         type: "yesno",
+//         order: 2,
+//     },
+//     {
+//         text: "Are you pregnant or have you been pregnant in the last 6 months?",
+//         type: "yesno",
+//         order: 3,
+//     },
+//     {
+//         text: "Do you have any chronic medical conditions (e.g., diabetes, heart disease)?",
+//         type: "yesno",
+//         order: 4,
+//     },
+//     {
+//         text: "Have you taken any antibiotics in the last 7 days?",
+//         type: "yesno",
+//         order: 5,
+//     },
+//     {
+//         text: "Have you undergone any major surgery in the past 6 months?",
+//         type: "yesno",
+//         order: 6,
+//     },
+//     {
+//         text: "Do you weigh more than 50 kg (110 lbs)?",
+//         type: "yesno",
+//         order: 7,
+//     },
+//     {
+//         text: "Have you traveled outside the country in the last 6 months?",
+//         type: "yesno",
+//         order: 8,
+//     },
+//     {
+//         text: "Have you ever been diagnosed with cancer?",
+//         type: "yesno",
+//         order: 9,
+//     },
+//     {
+//         text: "Have you received a tattoo or body piercing in the last 6 months?",
+//         type: "yesno",
+//         order: 10,
+//     }
+// ];
 
 // Fetch all questions sorted by order
 exports.getQuestions = async (req, res) => {
@@ -71,7 +71,7 @@ exports.addQuestion = async (req, res) => {
         const { text, type, order } = req.body;
         const question = new Question({ text, type, order });
         await question.save();
-        res.status(201).json({ question });
+        res.status(200).json({ question });
     } catch (error) {
         console.error("Add question error:", error); // 🔍 Add this
         res.status(500).json({ message: 'Failed to add question', error });
@@ -98,49 +98,46 @@ function checkEligibility(answers) {
     return true;
 }
 
-
 // Submit answers and check eligibility
 exports.submitAnswers = async (req, res) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-        const { answers } = req.body; // Expected: [{ questionId: "...", answerText: "yes" }, ...]
-        if (!Array.isArray(answers) || answers.length === 0) {
+        const { answers } = req.body;
+        if (!answers || !Array.isArray(answers) || answers.length === 0) {
             return res.status(400).json({ message: 'Answers must be a non-empty array' });
         }
 
-        // Convert to Map for eligibility logic (map of questionOrder => answerText)
-        const questions = await Question.find(); // You need the question order
-        const orderMap = new Map();
-        questions.forEach(q => {
-            orderMap.set(q._id.toString(), q.order.toString());
-        });
+        // Fetch the questions corresponding to the submitted answers
+        const questionIds = answers.map(a => a.questionId);
+        const questions = await Question.find({ _id: { $in: questionIds } });
 
+        // Map question order to answer (for eligibility check)
         const answerMap = new Map();
-        answers.forEach(ans => {
-            const order = orderMap.get(ans.questionId);
-            if (order) {
-                answerMap.set(order, ans.answerText.toLowerCase());
+        for (const ans of answers) {
+            const question = questions.find(q => q._id.toString() === ans.questionId);
+            if (question) {
+                answerMap.set(question.order.toString(), ans.answer.toLowerCase());
             }
-        });
+        }
 
+        // Check eligibility
         const eligible = checkEligibility(answerMap);
 
-        const answerDoc = new Answer({
-            userId,
-            answers,
-            eligible
-        });
+        // Convert answers array into plain object for Mongoose Map field
+        const answersMap = {};
+        for (const ans of answers) {
+            answersMap[ans.questionId] = ans.answer.toLowerCase();
+        }
 
+        // Save answers
+        const answerDoc = new Answer({ user_id: userId, answers: answersMap, eligible });
         await answerDoc.save();
 
         res.status(201).json({ eligible });
-
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Failed to submit answers', error });
+        console.error('Submit answers error:', error);
+        res.status(500).json({ message: 'Failed to submit answers', error: error.message || error });
     }
 };
-
-
