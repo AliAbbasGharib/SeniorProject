@@ -19,7 +19,8 @@
     "firebase": "^11.9.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
-    "openai": "^5.1.1"
+    "openai": "^5.1.1",
+    "twilio": "^5.7.0"
   },
   "keywords": [],
   "description": ""
