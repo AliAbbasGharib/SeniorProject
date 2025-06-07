@@ -82,11 +82,9 @@ exports.submitAnswers = async (req, res) => {
         const answerDoc = new Answer({ user_id: userId, answers: answersMap, eligible });
         await answerDoc.save();
 
-        if (!eligible) {
-            await User.findByIdAndUpdate(userId, {
-                donation_availability: 'unavailable',
-            });
-        }
+        await User.findByIdAndUpdate(userId, {
+            donation_availability: eligible ? 'available' : 'unavailable'
+        });
 
         res.status(201).json({ eligible });
     } catch (error) {
