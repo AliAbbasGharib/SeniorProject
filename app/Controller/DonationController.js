@@ -1,5 +1,5 @@
-const Question = require('../../Models/Answer');
-const Answer = require('../../Models/Question');
+const Question = require('../../Models/Question');
+const Answer = require('../../Models/Answer');
 
 
 const questions = [
@@ -59,7 +59,7 @@ const questions = [
 exports.getQuestions = async (req, res) => {
     try {
         const questions = await Question.find().sort({ order: 1 });
-        res.json({questions});
+        res.json({ questions });
     } catch (error) {
         res.status(500).json({ message: 'Failed to get questions', error });
     }
@@ -69,9 +69,9 @@ exports.getQuestions = async (req, res) => {
 exports.addQuestion = async (req, res) => {
     try {
         const { text, type, order } = req.body;
-        const question = new Question({  text, type, order });
+        const question = new Question({ text, type, order });
         await question.save();
-        res.status(201).json({question});
+        res.status(201).json({ question });
     } catch (error) {
         res.status(500).json({ message: 'Failed to add question', error });
     }
@@ -103,19 +103,42 @@ exports.submitAnswers = async (req, res) => {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-        const { answers } = req.body;
-        if (!answers) return res.status(400).json({ message: 'Answers required' });
+        const { answers } = req.body; // Expected: [{ questionId: "...", answerText: "yes" }, ...]
+        if (!Array.isArray(answers) || answers.length === 0) {
+            return res.status(400).json({ message: 'Answers must be a non-empty array' });
+        }
 
-        const answersMap = new Map(Object.entries(answers));
+        // Convert to Map for eligibility logic (map of questionOrder => answerText)
+        const questions = await Question.find(); // You need the question order
+        const orderMap = new Map();
+        questions.forEach(q => {
+            orderMap.set(q._id.toString(), q.order.toString());
+        });
 
-        const eligible = checkEligibility(answersMap);
+        const answerMap = new Map();
+        answers.forEach(ans => {
+            const order = orderMap.get(ans.questionId);
+            if (order) {
+                answerMap.set(order, ans.answerText.toLowerCase());
+            }
+        });
 
-        const answerDoc = new Answer({ userId, answers: answersMap, eligible });
+        const eligible = checkEligibility(answerMap);
+
+        const answerDoc = new Answer({
+            userId,
+            answers,
+            eligible
+        });
+
         await answerDoc.save();
 
         res.status(201).json({ eligible });
+
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Failed to submit answers', error });
     }
 };
+
 

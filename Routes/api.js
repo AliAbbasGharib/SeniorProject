@@ -34,7 +34,6 @@ router.put("/user/change-password/:id", AuthMiddleware, UserController.ChangePas
 router.get("/available-donor", AuthMiddleware, UserController.getAvailableDonors);
 router.get('/count-by-blood-type', AuthMiddleware, UserController.countAllBloodTypes);
 router.put("/user/update-profile", AuthMiddleware, UserController.updateOwnProfile);
-router.post("/save-push-token", AuthMiddleware, UserController.saveExpoPushToken);
 // User-protected Routes
 
 // Request Blood 
