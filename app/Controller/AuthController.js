@@ -4,14 +4,10 @@ const bcrypt = require('bcryptjs');
 const User = require("../../Models/Users");
 
 const createToken = (id) => {
-    return jwt.sign({ id }, "process.env.JWT_SECRET", {
+    return jwt.sign({ id },  process.env.JWT_SECRET, {
         expiresIn: '180d'
     });
 };
-
-const accountSid = 'SKa2c5411c2c807ee27e8228b38b83e873';
-const authToken = 'PADDZ9b9ejPRSZWiXKE3BYSg24naXCVR';
-const client = new twilio(accountSid, authToken);
 
 function generateCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
