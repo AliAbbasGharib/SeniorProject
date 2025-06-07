@@ -22,20 +22,37 @@ exports.getSpecificRequest = async (req, res) => {
 //get all requests
 exports.getAllRequests = async (req, res) => {
   try {
-    const requests = await RequestBlood.find().sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1; // default to page 1
+    const limit = parseInt(req.query.limit) || 12; // default to 10 items per page
+    const skip = (page - 1) * limit;
+
+    // Get total count of documents
+    const totalRequests = await RequestBlood.countDocuments();
+
+    // Fetch paginated requests
+    const requests = await RequestBlood.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     if (!requests || requests.length === 0) {
       return res.status(404).json({ message: 'No requests found' });
     }
+
     res.status(200).json({
       status: 200,
       message: 'Requests found',
       requests,
+      totalRequests,
+      currentPage: page,
+      totalPages: Math.ceil(totalRequests / limit),
     });
   } catch (err) {
     console.error('Get all requests error:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
-}
+};
+
 
 // get limited number of requests
 exports.getLimitedRequests = async (req, res) => {
@@ -135,33 +152,33 @@ exports.addRequest = async (req, res) => {
       const notifications = nearbyUsers.map(user => ({
         user_id: user._id,
         title: "Urgent Blood Request Nearby",
-        body:` Urgent blood request near you for blood type ${ request.blood_type }.Please help!`,
+        body: ` Urgent blood request near you for blood type ${request.blood_type}.Please help!`,
         request_id: request._id,
       }));
 
-    await Notification.insertMany(notifications);
+      await Notification.insertMany(notifications);
 
-    res.status(200).json({
-      status: 200,
-      message: 'Request Created and notifications sent',
-      request,
-      notifiedUsersCount: nearbyUsers.length,
-    });
-  } catch (notificationError) {
-    console.warn("Notifications failed:", notificationError.message);
-    // Still return success for the request
-    res.status(200).json({
-      status: 200,
-      message: 'Request Created but notifications failed',
-      request,
-      notifiedUsersCount: 0,
-    });
+      res.status(200).json({
+        status: 200,
+        message: 'Request Created and notifications sent',
+        request,
+        notifiedUsersCount: nearbyUsers.length,
+      });
+    } catch (notificationError) {
+      console.warn("Notifications failed:", notificationError.message);
+      // Still return success for the request
+      res.status(200).json({
+        status: 200,
+        message: 'Request Created but notifications failed',
+        request,
+        notifiedUsersCount: 0,
+      });
+    }
+
+  } catch (err) {
+    console.error('Add request error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
-
-} catch (err) {
-  console.error('Add request error:', err);
-  res.status(500).json({ message: 'Server error', error: err.message });
-}
 };
 
 
