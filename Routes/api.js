@@ -11,13 +11,11 @@ const RequestBloodController = require('../app/Controller/RequestBloodController
 const NotificationController = require('../app/Controller/NotificationController');
 const DonationController = require("../app/Controller/DonationController");
 const ContactContoller = require("../app/Controller/ContactController");
-const { healthQuestions, checkEligibility } = require('../app/Controller/DonationController');
 // public Route
 // Auth routes
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
 router.post("/logout", AuthController.logout);
-router.get("/verify-email", AuthController.verifyEmail);
 
 // Authenticated user route
 router.get("/user", AuthMiddleware, UserController.userAuth);
