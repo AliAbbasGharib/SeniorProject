@@ -63,11 +63,6 @@ const userSchema = new schema({
             type: [Number], // [longitude, latitude]
         }
     },
-    verification_code: String,
-    is_verified: {
-        type: Boolean,
-        default: false,
-    },
 });
 
 // Create 2dsphere index for geospatial queries
