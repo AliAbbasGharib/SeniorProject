@@ -261,6 +261,11 @@ exports.getAvailableDonors = async (req, res) => {
         const threeMonthsAgo = new Date();
         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
+        // Parse page and limit from query params, with defaults
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const skip = (page - 1) * limit;
+
         const filter = {
             role: '2001',
             donation_availability: "available",
@@ -271,15 +276,22 @@ exports.getAvailableDonors = async (req, res) => {
             ]
         };
 
-        // Get count first
+        // Get total count first
         const count = await User.countDocuments(filter);
 
-        // Get the users with the same filter
-        const users = await User.find(filter);
+        // Calculate total pages
+        const totalPages = Math.ceil(count / limit);
+
+        // Get paginated users
+        const users = await User.find(filter)
+            .skip(skip)
+            .limit(limit);
 
         res.status(200).json({
             status: 200,
             count,
+            totalPages,
+            currentPage: page,
             users,
             message: `Found ${count} available donor(s)`,
         });
