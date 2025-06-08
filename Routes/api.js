@@ -15,9 +15,9 @@ const { healthQuestions, checkEligibility } = require('../app/Controller/Donatio
 // public Route
 // Auth routes
 router.post("/register", AuthController.register);
-router.get("/verify-email", AuthController.verifyEmail);
 router.post("/login", AuthController.login);
 router.post("/logout", AuthController.logout);
+router.get("/verify-email", AuthController.verifyEmail);
 
 // Authenticated user route
 router.get("/user", AuthMiddleware, UserController.userAuth);
