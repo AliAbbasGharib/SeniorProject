@@ -63,6 +63,30 @@ module.exports.register = async (req, res) => {
     }
 };
 
+module.exports.verifyEmail = async (req, res) => {
+    try {
+        const { code, email } = req.query;
+
+        if (!code || !email) {
+            return res.status(400).send('Invalid verification link.');
+        }
+
+        const user = await User.findOne({ email, verification_code: code });
+        if (!user) {
+            return res.status(400).send('Invalid or expired verification code.');
+        }
+
+        user.is_verified = true;
+        user.verification_code = undefined;
+        await user.save();
+
+        res.status(200).send('Email verified successfully! You can now log in.');
+    } catch (error) {
+        res.status(500).send('Server error');
+    }
+};
+
+
 // Login 
 module.exports.login = async (req, res) => {
     const { email, password } = req.body;
