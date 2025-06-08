@@ -12,7 +12,7 @@ const createToken = (id) => {
 module.exports.register = async (req, res) => {
     try {
         const { name, email, password, phone_number, date_of_birth, gender, blood_type,
-            address, last_donation_date,location,
+            address, last_donation_date, location,
             role } = req.body;
 
         const existingUser = await User.findOne({ email });
@@ -21,6 +21,8 @@ module.exports.register = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        const verificationCode = crypto.randomBytes(20).toString('hex');
 
         const newUser = new User({
             name,
@@ -33,12 +35,22 @@ module.exports.register = async (req, res) => {
             address,
             last_donation_date,
             location,
-            role: role || 2001, // Default role if not provided
+            role: role || 2001,
+            verification_code: verificationCode,
+            is_verified: false,
         });
 
         await newUser.save();
 
         const token = createToken(newUser._id);
+
+        const url = `https://seniorproject-r3mq.onrender.com/api/auth/verify-email?code=${verificationCode}&email=${email}`;
+
+        await sendMail({
+            to: email,
+            subject: "Please verify your email",
+            html: `<p>Click <a href="${url}">here</a> to verify your email.</p>`,
+        });
 
         res.status(201).json({
             user: newUser,
