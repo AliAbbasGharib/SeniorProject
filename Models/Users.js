@@ -63,6 +63,10 @@ const userSchema = new schema({
             type: [Number], // [longitude, latitude]
         }
     },
+    fcmToken: {
+        type: String,
+        default: null
+    }
 });
 
 // Create 2dsphere index for geospatial queries

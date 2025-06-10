@@ -1,5 +1,6 @@
 const Notification = require("../../Models/Notification");
 const User = require("../../Models/Users");
+const admin = require('../../utils/firebase');
 
 // Send notification to all registered users
 exports.sendNotificationToAllUsers = async (req, res) => {
@@ -10,20 +11,42 @@ exports.sendNotificationToAllUsers = async (req, res) => {
             return res.status(400).json({ message: "Title and body are required" });
         }
 
-        // Get all active users with Expo tokens
-        const users = await User.find({ status: "active" });
+        const users = await User.find({ status: "active", fcmToken: { $ne: null } });
 
-        // Create notification documents
-        const notifications = users.map(user => ({
-            user_id: user._id,
-            title,
-            body,
-            data: { type: 'general' },
-        }));
+        const notifications = [];
+        const fcmMessages = [];
 
+        users.forEach(user => {
+            
+            notifications.push({
+                user_id: user._id,
+                title,
+                body,
+                data: { type: 'general' },
+                token: user.fcmToken
+            });
+
+            // Prepare FCM message
+            fcmMessages.push({
+                token: user.fcmToken,
+                notification: {
+                    title,
+                    body
+                },
+                data: {
+                    type: 'general'
+                }
+            });
+        });
+
+        // Send messages in batch (optional: chunk to 500)
+        const sendPromises = fcmMessages.map(msg => admin.messaging().send(msg));
+        await Promise.all(sendPromises);
+
+        // Save notifications to DB
         await Notification.insertMany(notifications);
 
-        res.status(200).json({ message: `Notifications stored and push sent to ${users.length} users.` });
+        res.status(200).json({ message: `Notifications sent and stored for ${users.length} users.` });
     } catch (error) {
         console.error("Error sending notifications:", error);
         res.status(500).json({ message: "Server error" });
