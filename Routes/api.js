@@ -16,6 +16,7 @@ const ContactContoller = require("../app/Controller/ContactController");
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
 router.post("/logout", AuthController.logout);
+router.post('/update-fcm-token',UserController.getFCMToken);
 
 // Authenticated user route
 router.get("/user", AuthMiddleware, UserController.userAuth);
