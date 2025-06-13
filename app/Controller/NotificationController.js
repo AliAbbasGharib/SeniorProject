@@ -11,13 +11,17 @@ exports.sendNotificationToAllUsers = async (req, res) => {
             return res.status(400).json({ message: "Title and body are required" });
         }
 
+        // Fetch active users with valid FCM tokens
         const users = await User.find({ status: "active", fcmToken: { $ne: null } });
+
+        if (users.length === 0) {
+            return res.status(404).json({ message: "No active users with valid FCM tokens found" });
+        }
 
         const notifications = [];
         const fcmMessages = [];
 
         users.forEach(user => {
-
             notifications.push({
                 user_id: user._id,
                 title,
@@ -26,7 +30,6 @@ exports.sendNotificationToAllUsers = async (req, res) => {
                 token: user.fcmToken
             });
 
-            // Prepare FCM message
             fcmMessages.push({
                 token: user.fcmToken,
                 notification: {
@@ -39,18 +42,26 @@ exports.sendNotificationToAllUsers = async (req, res) => {
             });
         });
 
-        // Send messages in batch (optional: chunk to 500)
-        const sendPromises = fcmMessages.map(msg => admin.messaging().send(msg));
-        await Promise.all(sendPromises);
+        // Optional: Chunk messages into batches of 500 (FCM limit)
+        const chunkSize = 500;
+        const chunks = [];
+        for (let i = 0; i < fcmMessages.length; i += chunkSize) {
+            chunks.push(fcmMessages.slice(i, i + chunkSize));
+        }
 
+        // Send messages in chunks
+        for (const chunk of chunks) {
+            const sendPromises = chunk.map(msg => admin.messaging().send(msg));
+            await Promise.all(sendPromises);
+        }
 
-        // Save notifications to DB
+        // Save notifications to the database
         await Notification.insertMany(notifications);
 
         res.status(200).json({ message: `Notifications sent and stored for ${users.length} users.` });
     } catch (error) {
         console.error("Error sending notifications:", error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
