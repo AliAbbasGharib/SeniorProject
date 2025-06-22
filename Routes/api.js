@@ -13,11 +13,13 @@ const DonationController = require("../app/Controller/DonationController");
 const ContactContoller = require("../app/Controller/ContactController");
 // public Route
 // Auth routes
-router.post("/register", AuthController.register);
-router.get("/:id/verify/:token", AuthController.verifyEmail);
-router.post("/login", AuthController.login);
-router.post("/resend-verification", AuthController.resendVerification);
-router.get("/logout", AuthController.logout);
+router.post('/register', AuthController.register);
+
+// Login
+router.post('/login', AuthController.login);
+router.get('/:id/verify/:token', AuthController.verifyEmail);
+router.post('/resend-verification', AuthController.resendVerification);
+router.post('/logout', AuthController.logout);
 router.post('/fcmToken', UserController.getFCMToken);
 
 // Authenticated user route

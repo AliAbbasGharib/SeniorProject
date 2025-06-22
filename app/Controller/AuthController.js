@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require("../../Models/Users");
-const Token = require("../../Models/Token ");
+const Token = require("../../Models/Token");
 const SendEmail = require("../../utils/SendEmail");
 const crypto = require('crypto');
 
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { // Fixed: removed quotes around process.env.JWT_SECRET
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '180d'
     });
 };
@@ -49,7 +49,7 @@ module.exports.register = async (req, res) => {
             });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 12); // Increased salt rounds for better security
+        const hashedPassword = await bcrypt.hash(password, 12);
 
         const newUser = new User({
             name,
@@ -63,15 +63,15 @@ module.exports.register = async (req, res) => {
             last_donation_date,
             location,
             role: role || 2001,
-            verified: false, // Explicitly set to false
-            status: 'pending' // Set initial status to pending until verified
+            verified: false,
+            status: 'active'
         });
 
         await newUser.save();
 
         // Create verification token
         const verificationToken = new Token({
-            userId: newUser._id, // Fixed: was "useId" should be "userId"
+            userId: newUser._id,
             token: crypto.randomBytes(32).toString("hex"),
             createdAt: new Date(),
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours expiry
@@ -79,16 +79,15 @@ module.exports.register = async (req, res) => {
 
         await verificationToken.save();
 
-        // Create verification URL that goes directly to your verification endpoint
+        // Create verification URL
         const verificationUrl = `${process.env.BASE_URL}/api/auth/${newUser._id}/verify/${verificationToken.token}`;
 
-        // Simple email with clickable link
+        // Email content
         const emailSubject = "Verify Your Email Address";
         const emailContent = `
             <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
                 <h2 style="color: #333; text-align: center;">Welcome ${name}!</h2>
                 <p>Thank you for registering with us. Please click the link below to verify your email and activate your account:</p>
-                
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="${verificationUrl}" 
                        style="background-color: #28a745; color: white; padding: 15px 30px; 
@@ -96,12 +95,10 @@ module.exports.register = async (req, res) => {
                         ✓ Verify My Email
                     </a>
                 </div>
-                
                 <p style="color: #666; font-size: 14px; text-align: center;">
                     Or copy and paste this link: <br>
                     <a href="${verificationUrl}" style="color: #007bff;">${verificationUrl}</a>
                 </p>
-                
                 <p style="color: #999; font-size: 12px; text-align: center;">
                     This link will expire in 24 hours.
                 </p>
@@ -110,7 +107,6 @@ module.exports.register = async (req, res) => {
 
         await SendEmail(newUser.email, emailSubject, emailContent);
 
-        // Don't send sensitive data in response
         res.status(201).json({
             message: 'User registered successfully. Please check your email to verify your account.',
             user: {
@@ -125,7 +121,7 @@ module.exports.register = async (req, res) => {
         console.error('Registration error:', err);
         res.status(500).json({
             message: "Registration failed. Please try again.",
-            error: err.message,    // <-- Add this line temporarily
+            error: err.message,
             stack: err.stack
         });
     }
@@ -136,7 +132,6 @@ module.exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Input validation
         if (!email || !password) {
             return res.status(400).json({
                 message: "Email and password are required"
@@ -150,14 +145,12 @@ module.exports.login = async (req, res) => {
             });
         }
 
-        // Check if email is verified
-        if (!user.verified) {
-            return res.status(403).json({
-                message: 'Please verify your email before logging in. Check your inbox for verification link.'
-            });
-        }
+        // if (!user.verified) {
+        //     return res.status(403).json({
+        //         message: 'Please verify your email before logging in. Check your inbox for verification link.'
+        //     });
+        // }
 
-        // Check account status
         if (user.status !== 'active') {
             return res.status(403).json({
                 message: 'Your account is not active. Please contact support.'
@@ -173,7 +166,6 @@ module.exports.login = async (req, res) => {
 
         const token = createToken(user._id);
 
-        // Don't send password in response
         const userResponse = { ...user.toObject() };
         delete userResponse.password;
 
@@ -192,12 +184,11 @@ module.exports.login = async (req, res) => {
     }
 };
 
-// Email Verification - Just click the link!
+// Email Verification
 module.exports.verifyEmail = async (req, res) => {
     try {
         const { id, token } = req.params;
 
-        // Find user
         const user = await User.findById(id);
         if (!user) {
             return res.send(`
@@ -215,7 +206,6 @@ module.exports.verifyEmail = async (req, res) => {
             `);
         }
 
-        // Check if already verified
         if (user.verified) {
             return res.send(`
                 <html>
@@ -232,7 +222,6 @@ module.exports.verifyEmail = async (req, res) => {
             `);
         }
 
-        // Find and validate token
         const verificationToken = await Token.findOne({
             userId: user._id,
             token: token
@@ -255,7 +244,6 @@ module.exports.verifyEmail = async (req, res) => {
             `);
         }
 
-        // Update user as verified and active
         await User.updateOne(
             { _id: user._id },
             {
@@ -264,10 +252,8 @@ module.exports.verifyEmail = async (req, res) => {
             }
         );
 
-        // Remove the used token
         await verificationToken.deleteOne();
 
-        // Success page - user can now login
         res.send(`
             <html>
                 <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
@@ -320,10 +306,8 @@ module.exports.resendVerification = async (req, res) => {
             });
         }
 
-        // Remove any existing tokens for this user
         await Token.deleteMany({ userId: user._id });
 
-        // Create new verification token
         const verificationToken = new Token({
             userId: user._id,
             token: crypto.randomBytes(32).toString("hex"),
@@ -333,7 +317,7 @@ module.exports.resendVerification = async (req, res) => {
 
         await verificationToken.save();
 
-        const verificationUrl = `${process.env.BASE_URL}/${user._id}/verify/${verificationToken.token}`;
+        const verificationUrl = `${process.env.BASE_URL}/api/auth/${user._id}/verify/${verificationToken.token}`;
 
         const emailContent = `
             <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
