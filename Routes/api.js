@@ -15,8 +15,7 @@ const ContactContoller = require("../app/Controller/ContactController");
 // Auth routes
 router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
-router.get('/:id/verify/:token', AuthController.verifyEmail);
-router.post('/resend-verification', AuthController.resendVerification);
+router.get('/verify/:id/:token', AuthController.verifyEmail);
 router.post('/logout', AuthController.logout);
 router.post('/fcmToken', UserController.getFCMToken);
 
