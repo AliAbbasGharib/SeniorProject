@@ -1,10 +1,21 @@
-const admin = require('firebase-admin');
-const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS); // adjust path as needed
+// const admin = require('firebase-admin');
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+// // Ensure FIREBASE_CREDENTIALS is set
+// if (!process.env.FIREBASE_CREDENTIALS) {
+//     throw new Error("FIREBASE_CREDENTIALS environment variable is not set.");
+// }
 
-});
-console.log("Firebase client_email:", serviceAccount.client_email); // Log the client_email for debugging
+// // Parse the Firebase credentials
+// const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
 
-module.exports = admin;
+// // Initialize Firebase Admin SDK
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+// });
+
+// // Log client_email for debugging in non-production environments
+// if (process.env.NODE_ENV !== 'production') {
+//     console.log("Firebase client_email:", serviceAccount.client_email);
+// }
+
+// module.exports = admin;

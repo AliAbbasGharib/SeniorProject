@@ -7,6 +7,7 @@ exports.sendNotificationToAllUsers = async (req, res) => {
     try {
         const { title, body } = req.body;
 
+        // Validate input
         if (!title || !body) {
             return res.status(400).json({ message: "Title and body are required" });
         }
@@ -21,28 +22,47 @@ exports.sendNotificationToAllUsers = async (req, res) => {
         const notifications = [];
         const fcmMessages = [];
 
+        // Prepare notifications and FCM messages
         users.forEach(user => {
             notifications.push({
                 user_id: user._id,
                 title,
                 body,
-                data: { type: 'general' },
-                token: user.fcmToken
+                type: 'general',
+                isDelivered: false,
             });
 
             fcmMessages.push({
                 token: user.fcmToken,
                 notification: {
                     title,
-                    body
+                    body,
+                },
+                android: {
+                    priority: "high",
+                    notification: {
+                        sound: "default",
+                        click_action: "FLUTTER_NOTIFICATION_CLICK", // For handling clicks in Flutter apps
+                    },
+                },
+                apns: {
+                    payload: {
+                        aps: {
+                            alert: {
+                                title,
+                                body,
+                            },
+                            sound: "default",
+                        },
+                    },
                 },
                 data: {
-                    type: 'general'
-                }
+                    type: "general", // Custom data for client-side handling
+                },
             });
         });
 
-        // Optional: Chunk messages into batches of 500 (FCM limit)
+        // Chunk messages into batches of 500 (FCM limit)
         const chunkSize = 500;
         const chunks = [];
         for (let i = 0; i < fcmMessages.length; i += chunkSize) {

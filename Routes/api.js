@@ -14,9 +14,11 @@ const ContactContoller = require("../app/Controller/ContactController");
 // public Route
 // Auth routes
 router.post("/register", AuthController.register);
+router.get("/:id/verify/:token", AuthController.verifyEmail);
 router.post("/login", AuthController.login);
-router.post("/logout", AuthController.logout);
-router.post('/fcmToken',UserController.getFCMToken);
+router.post("/resend-verification", AuthController.resendVerification);
+router.get("/logout", AuthController.logout);
+router.post('/fcmToken', UserController.getFCMToken);
 
 // Authenticated user route
 router.get("/user", AuthMiddleware, UserController.userAuth);
@@ -65,7 +67,7 @@ router.delete('/messages/:id', AuthMiddleware, CheckAdminOrHospital, ContactCont
 router.put('/messages/status/:id', AuthMiddleware, CheckAdminOrHospital, ContactContoller.updateMessageStatus);
 
 router.post('/add-questions', AuthMiddleware, DonationController.addQuestion);
-router.get("/get-questions",AuthMiddleware, DonationController.getQuestions);
+router.get("/get-questions", AuthMiddleware, DonationController.getQuestions);
 router.post('/submit-answers', AuthMiddleware, DonationController.submitAnswers);
 
 module.exports = router;

@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require("mongoose");
 const helmet = require('helmet');
-require('dotenv').config();
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
         console.log("connected succufully");
