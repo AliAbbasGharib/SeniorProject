@@ -125,7 +125,8 @@ module.exports.register = async (req, res) => {
         console.error('Registration error:', err);
         res.status(500).json({
             message: "Registration failed. Please try again.",
-            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+            error: err.message,    // <-- Add this line temporarily
+            stack: err.stack
         });
     }
 };
