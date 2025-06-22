@@ -14,8 +14,6 @@ const ContactContoller = require("../app/Controller/ContactController");
 // public Route
 // Auth routes
 router.post('/register', AuthController.register);
-
-// Login
 router.post('/login', AuthController.login);
 router.get('/:id/verify/:token', AuthController.verifyEmail);
 router.post('/resend-verification', AuthController.resendVerification);
