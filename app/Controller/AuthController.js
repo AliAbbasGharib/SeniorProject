@@ -6,7 +6,7 @@ const SendEmail = require("../../utils/SendEmail");
 const crypto = require('crypto');
 
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+    return jwt.sign({ id }, "process.env.JWT_SECRET", {
         expiresIn: '180d'
     });
 };
