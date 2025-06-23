@@ -80,7 +80,7 @@ module.exports.register = async (req, res) => {
         await verificationToken.save();
 
         // Create verification URL
-        const verificationUrl = `${process.env.BASE_URL}/api/${newUser._id}/verify/${verificationToken.token}`;
+        const verificationUrl = `${process.env.BASE_URL}/${newUser._id}/verify/${verificationToken.token}`;
 
         // Email content
         const emailSubject = "Verify Your Email Address";
