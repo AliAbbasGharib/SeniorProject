@@ -166,20 +166,19 @@ module.exports.login = async (req, res) => {
 
         const token = createToken(user._id);
 
-        const userResponse = { ...user.toObject() };
-        delete userResponse.password;
+        // const userResponse = { ...user.toObject() };
+        // delete userResponse.password;
 
         return res.status(200).json({
             message: "Login successful",
             token,
-            user: userResponse
+            user
         });
 
     } catch (err) {
         console.error('Login error:', err);
         return res.status(500).json({
             message: "Login failed. Please try again.",
-            error: process.env.NODE_ENV === 'development' ? err.message : undefined
         });
     }
 };
