@@ -187,81 +187,30 @@ module.exports.login = async (req, res) => {
 module.exports.verifyEmail = async (req, res) => {
     try {
         const { id, token } = req.params;
-        const acceptsJSON = req.headers.accept && req.headers.accept.includes('application/json');
 
         const user = await User.findById(id);
-        if (!user) {
-            if (acceptsJSON) {
-                return res.status(404).json({ message: "User not found. Please try registering again." });
-            }
-            return res.send(`
-                <html><body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-                <h2 style="color: #dc3545;">❌ Verification Failed</h2>
-                <p>User not found. Please try registering again.</p>
-                <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/register" 
-                   style="background-color: #007bff; color: white; padding: 10px 20px; 
-                          text-decoration: none; border-radius: 5px;">Register Again</a>
-                </body></html>`);
-        }
+        if (!user) return res.status(400).send("Invalid link");
 
-        if (user.verified) {
-            if (acceptsJSON) {
-                return res.status(200).json({ message: "Email already verified." });
-            }
-            return res.send(`
-                <html><body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-                <h2 style="color: #28a745;">✅ Already Verified!</h2>
-                <p>Your email is already verified. You can log in to your account.</p>
-                <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" 
-                   style="background-color: #28a745; color: white; padding: 10px 20px; 
-                          text-decoration: none; border-radius: 5px;">Go to Login</a>
-                </body></html>`);
-        }
+        const verificationToken = await Token.findOne({ userId: id, token });
+        if (!verificationToken) return res.status(400).send("Invalid or expired link");
 
-        const verificationToken = await Token.findOne({ userId: user._id, token });
-        if (!verificationToken) {
-            if (acceptsJSON) {
-                return res.status(400).json({ message: "Invalid or expired verification link." });
-            }
-            return res.send(`
-                <html><body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-                <h2 style="color: #dc3545;">❌ Invalid Link</h2>
-                <p>This verification link is invalid or has expired.</p>
-                <p>Please request a new verification email.</p>
-                <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/resend-verification" 
-                   style="background-color: #ffc107; color: black; padding: 10px 20px; 
-                          text-decoration: none; border-radius: 5px;">Resend Verification</a>
-                </body></html>`);
-        }
-
-        // Mark user as verified and active
+        // Mark user as verified
         user.verified = true;
-        user.status = 'active';
         await user.save();
+
+        // Remove token
         await verificationToken.deleteOne();
 
-        if (acceptsJSON) {
-            return res.status(200).json({ message: "Email verified successfully." });
-        }
-        return res.send(`
-            <html><body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-            <h2 style="color: #28a745;">🎉 Email Verified Successfully!</h2>
-            <p>Welcome <strong>${user.name}</strong>! Your account is now active.</p>
-            <p>You can now log in and start using your account.</p>
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" 
-               style="background-color: #28a745; color: white; padding: 15px 30px; 
-                      text-decoration: none; border-radius: 5px; font-size: 16px;">Go to Login</a>
-            </body></html>`);
-    } catch (error) {
-        console.error('Email verification error:', error);
-        if (req.headers.accept && req.headers.accept.includes('application/json')) {
-            return res.status(500).json({ message: "Something went wrong. Please try again or contact support." });
-        }
-        return res.send(`
-            <html><body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
-            <h2 style="color: #dc3545;">❌ Something went wrong</h2>
-            <p>Please try again or contact support.</p>
-            </body></html>`);
+        // ✅ Create JWT token
+        const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: '180d'
+        });
+
+        // ✅ Redirect to frontend with token
+        return res.redirect(`${process.env.FRONTEND_URL || "http://localhost:3000"}/verify-success?token=${jwtToken}`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Something went wrong");
     }
 };
 
