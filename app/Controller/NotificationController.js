@@ -99,6 +99,7 @@ exports.getSpecificNotification = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 exports.getMyNotifications = async (req, res) => {
     try {
         const userId = req.user.id;  // Ensure req.user is set by Auth middleware
@@ -120,7 +121,6 @@ exports.getMyNotifications = async (req, res) => {
     }
 };
 
-
 exports.getUnreadCount = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -136,7 +136,6 @@ exports.getUnreadCount = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
-
 
 exports.markAllAsRead = async (req, res) => {
     try {
@@ -191,7 +190,6 @@ exports.updateNotifications = async (req, res) => {
     }
 };
 
-
 exports.deleteNotifications = async (req, res) => {
     try {
         const notification = await Notification.findByIdAndDelete(req.params.id);
@@ -204,7 +202,6 @@ exports.deleteNotifications = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
 
 exports.getUndeliveredNotifications = async (req, res) => {
     try {
@@ -225,7 +222,6 @@ exports.getUndeliveredNotifications = async (req, res) => {
     }
 };
 
-
 exports.markAllAsDelivered = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -240,6 +236,4 @@ exports.markAllAsDelivered = async (req, res) => {
         console.error("Error updating delivery status:", error);
         res.status(500).json({ message: "Server error" });
     }
-};
-
-
+}
