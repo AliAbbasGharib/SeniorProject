@@ -4,17 +4,15 @@ const User = require("../../Models/Users");
 // Send notification to all registered users
 exports.sendNotificationToAllUsers = async (req, res) => {
     try {
-        const { user_id, title, body, type = 'general' } = req.body;
+        const { title, body } = req.body;
 
-        if (!user_id || !title || !body) {
+        if (!title || !body) {
             return res.status(400).json({ message: "User ID, title, and body are required." });
         }
 
         const notification = new Notification({
-            user_id,
             title,
             body,
-            type,
             isDelivered: false,
             isRead: false
         });
