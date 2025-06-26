@@ -1,6 +1,5 @@
 const Notification = require("../../Models/Notification");
 const User = require("../../Models/Users");
-const admin = require('../../utils/firebase');
 
 // Send notification to all registered users
 exports.sendNotificationToAllUsers = async (req, res) => {
