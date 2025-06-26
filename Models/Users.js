@@ -63,10 +63,7 @@ const userSchema = new schema({
             type: [Number], // [longitude, latitude]
         }
     },
-    fcmToken: {
-        type: String,
-        default: null
-    },
+
 
     verified: {
         type: Boolean,

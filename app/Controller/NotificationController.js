@@ -5,86 +5,32 @@ const admin = require('../../utils/firebase');
 // Send notification to all registered users
 exports.sendNotificationToAllUsers = async (req, res) => {
     try {
-        const { title, body } = req.body;
+        const { user_id, title, body, type = 'general' } = req.body;
 
-        // Validate input
-        if (!title || !body) {
-            return res.status(400).json({ message: "Title and body are required" });
+        if (!user_id || !title || !body) {
+            return res.status(400).json({ message: "User ID, title, and body are required." });
         }
 
-        // Fetch active users with valid FCM tokens
-        const users = await User.find({ status: "active", fcmToken: { $ne: null } });
-
-        if (users.length === 0) {
-            return res.status(404).json({ message: "No active users with valid FCM tokens found" });
-        }
-
-        const notifications = [];
-        const fcmMessages = [];
-
-        // Prepare notifications and FCM messages
-        users.forEach(user => {
-            notifications.push({
-                user_id: user._id,
-                title,
-                body,
-                type: 'general',
-                isDelivered: false,
-            });
-
-            fcmMessages.push({
-                token: user.fcmToken,
-                notification: {
-                    title,
-                    body,
-                },
-                android: {
-                    priority: "high",
-                    notification: {
-                        sound: "default",
-                        click_action: "FLUTTER_NOTIFICATION_CLICK", // For handling clicks in Flutter apps
-                    },
-                },
-                apns: {
-                    payload: {
-                        aps: {
-                            alert: {
-                                title,
-                                body,
-                            },
-                            sound: "default",
-                        },
-                    },
-                },
-                data: {
-                    type: "general", // Custom data for client-side handling
-                },
-            });
+        const notification = new Notification({
+            user_id,
+            title,
+            body,
+            type,
+            isDelivered: false,
+            isRead: false
         });
 
-        // Chunk messages into batches of 500 (FCM limit)
-        const chunkSize = 500;
-        const chunks = [];
-        for (let i = 0; i < fcmMessages.length; i += chunkSize) {
-            chunks.push(fcmMessages.slice(i, i + chunkSize));
-        }
+        await notification.save();
 
-        // Send messages in chunks
-        for (const chunk of chunks) {
-            const sendPromises = chunk.map(msg => admin.messaging().send(msg));
-            await Promise.all(sendPromises);
-        }
-
-        // Save notifications to the database
-        await Notification.insertMany(notifications);
-
-        res.status(200).json({ message: `Notifications sent and stored for ${users.length} users.` });
+        res.status(201).json({
+            message: "Notification created successfully.",
+            data: notification
+        });
     } catch (error) {
-        console.error("Error sending notifications:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
+        console.error("Error inserting notification:", error);
+        res.status(500).json({ message: "Server error" });
     }
 };
-
 exports.getSpecificNotification = async (req, res) => {
     try {
         const notification = await Notification.findById(req.params.id);
