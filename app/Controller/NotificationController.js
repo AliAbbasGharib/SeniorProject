@@ -7,27 +7,30 @@ exports.sendNotificationToAllUsers = async (req, res) => {
         const { title, body } = req.body;
 
         if (!title || !body) {
-            return res.status(400).json({ message: "User ID, title, and body are required." });
+            return res.status(400).json({ message: "Title and body are required." });
         }
 
-        const notification = new Notification({
+        const users = await User.find({ status: 'active' });
+
+        const notifications = users.map(user => ({
+            user_id: user._id,
             title,
             body,
             isDelivered: false,
             isRead: false
-        });
+        }));
 
-        await notification.save();
+        await Notification.insertMany(notifications);
 
         res.status(201).json({
-            message: "Notification created successfully.",
-            data: notification
+            message: `Notifications created for ${users.length} users.`,
         });
     } catch (error) {
         console.error("Error inserting notification:", error);
         res.status(500).json({ message: "Server error" });
     }
 };
+
 exports.getSpecificNotification = async (req, res) => {
     try {
         const notification = await Notification.findById(req.params.id);
