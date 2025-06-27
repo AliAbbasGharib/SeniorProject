@@ -101,7 +101,7 @@ exports.addUser = async (req, res) => {
             user
         });
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.message });
     }
 };
 
@@ -144,7 +144,7 @@ exports.updateUser = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message :err.message });
     }
 };
 
@@ -197,7 +197,7 @@ exports.updateOwnProfile = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.message });
     }
 };
 
@@ -347,28 +347,3 @@ exports.countAllBloodTypes = async (req, res) => {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
-
-exports.getFCMToken =  async (req, res) => {
-    const { userId, fcmToken } = req.body;
-
-    if (!userId || !fcmToken) {
-        return res.status(400).json({ message: 'userId and fcmToken are required' });
-    }
-
-    try {
-        const user = await User.findByIdAndUpdate(
-            userId,
-            { fcmToken },
-            { new: true }
-        );
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        res.status(200).json({ message: 'FCM token updated successfully', user });
-    } catch (error) {
-        console.error('Error updating FCM token:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-}

@@ -17,7 +17,6 @@ router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
 router.get('/:id/verify/:token', AuthController.verifyEmail);
 router.post('/logout', AuthController.logout);
-router.post('/fcmToken', UserController.getFCMToken);
 
 // Authenticated user route
 router.get("/user", AuthMiddleware, UserController.userAuth);
@@ -29,10 +28,10 @@ router.get("/user/:id", AuthMiddleware, CheckAdminOrHospital, UserController.get
 // router.get("/users/limit/:number", AuthMiddleware, CheckAdminOrHospital, UserController.getLimitedUsers);
 router.post("/user/add", AuthMiddleware, CheckAdminOrHospital, UserController.addUser);
 router.put("/user/update/:id", AuthMiddleware, CheckAdminOrHospital, UserController.updateUser);
-router.delete("/user/:id", AuthMiddleware, CheckAdminOrHospital, UserController.deleteUser);
-router.put("/user/status/:id", AuthMiddleware, CheckAdminOrHospital, UserController.statusUser);
+router.delete("/user/:id", AuthMiddleware, CheckAdmin, UserController.deleteUser);
+router.put("/user/status/:id", AuthMiddleware, CheckAdmin, UserController.statusUser);
 router.put("/user/change-password/:id", AuthMiddleware, UserController.ChangePassword);
-router.get("/available-donor", AuthMiddleware, UserController.getAvailableDonors);
+router.get("/available-donor", AuthMiddleware,CheckAdminOrHospital, UserController.getAvailableDonors);
 router.get('/count-by-blood-type', AuthMiddleware, UserController.countAllBloodTypes);
 router.put("/user/update-profile", AuthMiddleware, UserController.updateOwnProfile);
 // User-protected Routes
