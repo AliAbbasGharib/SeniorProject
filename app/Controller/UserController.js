@@ -91,6 +91,7 @@ exports.addUser = async (req, res) => {
             address,
             last_donation_date,
             location,
+            verified: true,
             role,
         });
         await user.save();
@@ -144,7 +145,7 @@ exports.updateUser = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message :err.message });
+        res.status(500).json({ message: err.message });
     }
 };
 
