@@ -145,11 +145,11 @@ module.exports.login = async (req, res) => {
             });
         }
 
-        // if (!user.verified) {
-        //     return res.status(403).json({
-        //         message: 'Please verify your email before logging in. Check your inbox for verification link.'
-        //     });
-        // }
+        if (!user.verified) {
+            return res.status(403).json({
+                message: 'Please verify your email before logging in. Check your inbox for verification link.'
+            });
+        }
 
         if (user.status !== 'active') {
             return res.status(403).json({
