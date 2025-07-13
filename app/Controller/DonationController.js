@@ -1,6 +1,8 @@
+const { VertexAI } = require('@google-cloud/vertexai'); // Add at the top
 const Question = require('../../Models/Question');
 const Answer = require('../../Models/Answer');
 const User = require('../../Models/Users');
+
 
 // Fetch all questions sorted by order
 exports.getQuestions = async (req, res) => {

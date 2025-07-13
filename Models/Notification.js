@@ -24,11 +24,7 @@ const NotificationSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    type: {
-        type: String,
-        enum: ['request_blood','general'],
-        default: 'general'
-    },
+
     isDelivered: {
         type: Boolean,
         default: false

@@ -32,8 +32,26 @@ exports.getPaginatedUsers = async (req, res) => {
 
         const skip = (page - 1) * limit;
 
-        const users = await User.find().skip(skip).limit(limit);
-        const total = await User.countDocuments();
+        // Build filter object
+        const filter = {};
+
+        if (req.query.name) {
+            filter.name = { $regex: req.query.name, $options: "i" }; // case-insensitive partial match
+        }
+
+        if (req.query.blood_type) {
+            filter.blood_type = req.query.blood_type; // exact match
+        }
+
+        if (req.query.address) {
+            filter.address = { $regex: req.query.address, $options: "i" }; // case-insensitive partial match
+        }
+
+        // Query with filter + pagination
+        const users = await User.find(filter).skip(skip).limit(limit);
+
+        // Count total filtered users
+        const total = await User.countDocuments(filter);
 
         res.status(200).json({
             status: 200,
@@ -41,13 +59,14 @@ exports.getPaginatedUsers = async (req, res) => {
             users,
             totalUsers: total,
             totalPages: Math.ceil(total / limit),
-            currentPage: page
+            currentPage: page,
         });
     } catch (err) {
         console.error('Get paginated users error:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
+
 
 // Get specific user
 exports.getSpecificUser = async (req, res) => {
